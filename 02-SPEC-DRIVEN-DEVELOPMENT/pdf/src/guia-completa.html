@@ -936,7 +936,18 @@
 <li>Un UseCase = una operación; el Cubit orquesta varios</li>
 <li>Sin lógica de negocio en widgets ni en models</li>
 </ul>
-<p><strong>Salida de Fase 2:</strong> <code>design.md</code></p>
+<h3 id="26-diseño-de-interfaz-ui-ux--archivo-pen">2.6 Diseño de interfaz (UI-UX) — archivo .pen</h3>
+<p>El diseño visual de pantallas se hace con <strong>Pencil</strong> (módulo <code>08-PENCIL/</code>, diseño manual, sin IA) y viaja dentro del change folder:</p>
+<ul>
+<li><strong>Ubicación:</strong> <code>openspec/changes/&lt;cambio&gt;/design/&lt;feature&gt;-ui.pen</code> (JSON diffable en git, ver <code>08-PENCIL/08-cli-pen-format.md</code>)</li>
+<li><strong>Registro en <code>design.md</code> §UI-UX:</strong> tabla <code>Pantalla (.pen) | Escenario REQ | Estados visibles | Notas</code>; los mensajes/estados EXACTOS ya viven en los escenarios EARS de la spec — aquí se mapea cada pantalla a su REQ</li>
+<li><strong>Regla de complejidad:</strong> Simple omite el <code>.pen</code> (igual que <code>design.md</code>); Intermedia → wireframes de las pantallas clave; Compleja → mapa de pantallas por actor/escenario</li>
+<li><strong>Puerta 2 valida</strong> que todo escenario REQ con UI visible tiene pantalla/estado diseñado ANTES de tasks.md; la Oleada 3.3 implementa contra ese <code>.pen</code> aprobado</li>
+</ul>
+<blockquote>
+<p>El principio es el del <strong>Clarity Gate</strong>: para UI compleja hay que capturar los supuestos visuales antes de implementar. Límite del antipatrón de <strong>sobreespecificación</strong>: wireframes, no pixel-árbol.</p>
+</blockquote>
+<p><strong>Salida de Fase 2:</strong> <code>design.md</code> (+ <code>design/*.pen</code> cuando aplica)</p>
 <hr />
 <h3 id="door-puerta-2--aprobación-del-diseño">🚪 Puerta 2 — Aprobación del diseño</h3>
 <pre><code>[ ] La tabla de ficheros afectados cubre TODOS los requisitos de la Puerta 1
@@ -944,7 +955,8 @@
 [ ] El flujo de datos cubre caminos de éxito Y de error
 [ ] RLS especificada para toda tabla nueva/modificada
 [ ] Ninguna decisión importante quedó implícita
-[ ] Se respeta el patrón de las features existentes (o se justifica el cambio)</code></pre>
+[ ] Se respeta el patrón de las features existentes (o se justifica el cambio)
+[ ] Cada escenario REQ visible tiene su pantalla/estado diseñado (archivo .pen)</code></pre>
 <hr />
 <h2 id="fase-3--tareas--en-qué-orden">Fase 3 · Tareas — EN QUÉ ORDEN</h2>
 <blockquote>
@@ -1750,14 +1762,22 @@ Tú: Sí, hagámoslo</code></pre>
 <span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>                              Either.left(Failure) ◄────────────┘</span>
 <span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>            ◄── CartError(message) ◄── mapeo de failures</span>
 <span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>Backend Supabase</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tablas: <span class="co">[</span><span class="ot">columnas, tipos, FKs, constraints</span><span class="co">]</span></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>RLS: <span class="co">[</span><span class="ot">política por escenario de seguridad</span><span class="co">]</span></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>RPC/Triggers: <span class="co">[</span><span class="ot">si hay cálculo atómico o concurrencia</span><span class="co">]</span></span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Migración: supabase/migrations/NNNN_*.sql (idempotente, no editar previas)</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>Boundaries aplicables a este cambio</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Qué NO debe hacer el agente aquí: ej. no tocar feature Y, no añadir paquetes</span><span class="co">]</span></span></code></pre></div>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>UI-UX · Pantallas (archivo .pen)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Solo Intermedia/Compleja; Simple lo omite (igual que design.md).</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co">     Wireframes hechos con Pencil (modulo 08): openspec/changes/&lt;cambio&gt;/design/&lt;feature&gt;-ui.pen</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="co">     Los mensajes/estados EXACTOS ya viven en la spec; aqui se mapea pantalla -&gt; REQ. --&gt;</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Pantalla (.pen) <span class="pp">|</span> Escenario REQ <span class="pp">|</span> Estados visibles <span class="pp">|</span> Notas (interacciones) <span class="pp">|</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------------|---------------|------------------|------------------------|</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="dt">&lt;</span><span class="kw">Page</span><span class="dt">&gt;</span> <span class="pp">|</span> REQ-00x <span class="pp">|</span> vacio · con datos · error <span class="pp">|</span> <span class="dt">&lt;</span><span class="kw">snackbars</span><span class="ot"> </span><span class="er">/</span><span class="ot"> empty states con el mensaje exacto</span><span class="dt">&gt;</span> <span class="pp">|</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>Backend Supabase</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tablas: <span class="co">[</span><span class="ot">columnas, tipos, FKs, constraints</span><span class="co">]</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>RLS: <span class="co">[</span><span class="ot">política por escenario de seguridad</span><span class="co">]</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>RPC/Triggers: <span class="co">[</span><span class="ot">si hay cálculo atómico o concurrencia</span><span class="co">]</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Migración: supabase/migrations/NNNN_*.sql (idempotente, no editar previas)</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>Boundaries aplicables a este cambio</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Qué NO debe hacer el agente aquí: ej. no tocar feature Y, no añadir paquetes</span><span class="co">]</span></span></code></pre></div>
 <hr />
 <h2 id="tasksmd">tasks.md</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Tasks: add-&lt;feature&gt;</span></span>
@@ -2117,6 +2137,16 @@ Requisitos → Diseño   Diseño → Tareas       Tareas → Implementación</co
 <td>Flujo de datos</td>
 <td>Diagrama Page→Cubit→UseCase→Repo→DataSource→Supabase</td>
 <td><code>design.md</code></td>
+</tr>
+<tr>
+<td>Diseño de pantallas (wireframes UI)</td>
+<td>Sección <code>design.md §UI-UX</code> + archivo <code>.pen</code> (Pencil, módulo 08)</td>
+<td>Fase 2</td>
+</tr>
+<tr>
+<td>Estados de pantalla (mensajes exactos)</td>
+<td>Escenarios EARS dentro de cada Requirement</td>
+<td>Fase 1</td>
 </tr>
 <tr>
 <td>Criterios BDD</td>
@@ -2884,6 +2914,38 @@ Tú: audita el diff de la oleada contra specs/*/spec.md + design.md   ← este d
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CartLoading <span class="kw">extends</span> CartState <span class="op">{}</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CartLoaded <span class="kw">extends</span> CartState <span class="op">{</span> <span class="at">final</span> Cart cart; <span class="at">const</span> CartLoaded(<span class="kw">this</span><span class="op">.</span>cart); <span class="op">}</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CartError <span class="kw">extends</span> CartState <span class="op">{</span> <span class="at">final</span> <span class="dt">String</span> message; <span class="at">const</span> CartError(<span class="kw">this</span><span class="op">.</span>message); <span class="op">}</span></span></code></pre></div>
+<h2 id="ui-ux--pantallas-archivo-pen">UI-UX · Pantallas (archivo .pen)</h2>
+<p>Wireframes con Pencil (módulo 08) en <code>openspec/changes/add-cart/design/add-cart-ui.pen</code> — archivo esperado, no incluido en el ejemplo. Los mensajes exactos viven en los escenarios de <code>spec.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Pantalla (.pen)</th>
+<th>Escenario REQ</th>
+<th>Estados visibles</th>
+<th>Notas (interacciones)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CartPage (vacía)</td>
+<td>REQ-003</td>
+<td>EmptyState sin totales</td>
+<td>texto del estado vacío sin totales calculados</td>
+</tr>
+<tr>
+<td>CartPage (con items)</td>
+<td>REQ-001..003</td>
+<td>lista de items + subtotal/impuesto/total</td>
+<td>recalcular tras add/remove/updateQuantity; descuento visible si hay cupón</td>
+</tr>
+<tr>
+<td>CartPage (error)</td>
+<td>REQ-001, REQ-004</td>
+<td>SnackBar: "Producto {nombre} sin stock disponible" · "Has alcanzado el límite de 50 productos" · "La cantidad debe ser mayor a 0" · "El cupón {codigo} ha expirado" · "El descuento supera el límite permitido"</td>
+<td>mensajes exactos de los escenarios EARS</td>
+</tr>
+</tbody>
+</table>
 <h2 id="flujo-de-datos">Flujo de datos</h2>
 <pre><code>CartPage ──onTap──► CartCubit.addItem(productId)
                         │ emit CartLoading

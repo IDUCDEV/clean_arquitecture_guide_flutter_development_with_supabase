@@ -58,6 +58,16 @@ class CartLoaded extends CartState { final Cart cart; const CartLoaded(this.cart
 class CartError extends CartState { final String message; const CartError(this.message); }
 ```
 
+## UI-UX · Pantallas (archivo .pen)
+
+Wireframes con Pencil (módulo 08) en `openspec/changes/add-cart/design/add-cart-ui.pen` — archivo esperado, no incluido en el ejemplo. Los mensajes exactos viven en los escenarios de `spec.md`.
+
+| Pantalla (.pen) | Escenario REQ | Estados visibles | Notas (interacciones) |
+|-----------------|---------------|------------------|------------------------|
+| CartPage (vacía) | REQ-003 | EmptyState sin totales | texto del estado vacío sin totales calculados |
+| CartPage (con items) | REQ-001..003 | lista de items + subtotal/impuesto/total | recalcular tras add/remove/updateQuantity; descuento visible si hay cupón |
+| CartPage (error) | REQ-001, REQ-004 | SnackBar: "Producto {nombre} sin stock disponible" · "Has alcanzado el límite de 50 productos" · "La cantidad debe ser mayor a 0" · "El cupón {codigo} ha expirado" · "El descuento supera el límite permitido" | mensajes exactos de los escenarios EARS |
+
 ## Flujo de datos
 ```
 CartPage ──onTap──► CartCubit.addItem(productId)

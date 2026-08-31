@@ -138,7 +138,7 @@
 [ ] openspec validate pasa sin errores</pre>
 
   <h3>Paso 4 · Llena design.md — diseno tecnico (solo Intermedia/Compleja)</h3>
-  <p>En Simple se omite: los ficheros se derivan directamente de los requisitos. En Intermedia/Compleja se decide <strong>como se implementa lo aprobado en la Puerta 1</strong>.</p>
+  <p>En Simple se omite: los ficheros se derivan directamente de los requisitos. En Intermedia/Compleja se decide <strong>como se implementa lo aprobado en la Puerta 1</strong>. La UI se disena en <strong>Pencil</strong> (modulo 08): el wireframe <code>&lt;feature&gt;-ui.pen</code> vive en <code>openspec/changes/&lt;nombre&gt;/design/</code> y se registra en <code>design.md</code> §UI-UX (pantalla → REQ). Simple tambien omite el .pen.</p>
 
   <pre class="cmd">openspec instructions design --change add-&lt;feature&gt; --json   ← plantilla del artefacto
 # solo Intermedia/Compleja: en Simple se omite</pre>
@@ -154,6 +154,8 @@
 ## Ficheros afectados          ← OBLIGATORIA: si falta, el agente INVENTA rutas
 | Elemento | Capa | Archivo | Req |   ← una fila por fichero, citando REQ
 ## Contratos Dart clave        ← Repository interface + sealed State ANTES de implementar
+## UI-UX · Pantallas (.pen)    ← Pencil (modulo 08): openspec/changes/&lt;nombre&gt;/design/&lt;feature&gt;-ui.pen
+                               ← tabla Pantalla | Escenario REQ | Estados visibles | Notas (Simple lo omite)
 ## Flujo de datos              ← ASCII: Page→Cubit→UseCase→Repo→DataSource→Supabase, con rama de error (Either.left)
 ## Backend Supabase            ← Tablas · RLS citando REQ · RPC si concurrencia · Migracion idempotente
 ## Boundaries                  ← que NO debe hacer el agente aqui: ej. no tocar feature Y</pre></div>
@@ -167,6 +169,7 @@
 [ ] el flujo de datos cubre caminos de exito Y de error
 [ ] RLS especificada para toda tabla nueva/modificada
 [ ] ninguna decision importante quedo implicita
+[ ] cada escenario REQ visible tiene su pantalla/estado en el archivo .pen
 [ ] openspec validate pasa sin errores</pre>
 
   <h3>Paso 5 · Llena tasks.md — las 5 oleadas</h3>
@@ -329,7 +332,7 @@ openspec list --specs           ← confirma: la capacidad ya esta descrita hoy<
     <thead><tr><th>Fase</th><th>Entregable</th><th>Puerta de calidad</th></tr></thead>
     <tbody>
       <tr><td><strong>1. Especificar</strong></td><td>proposal.md + spec delta (requisitos EARS)</td><td><strong>Puerta 1:</strong> ¿la spec es precisa y completa? ¿un dev senior la entiende sin preguntar?</td></tr>
-      <tr><td><strong>2. Diseniar</strong></td><td>design.md (ficheros, contratos Dart, backend, decisiones)</td><td><strong>Puerta 2:</strong> ¿cada flecha del flujo tiene artefacto? ¿decisiones justificadas?</td></tr>
+      <tr><td><strong>2. Diseniar</strong></td><td>design.md (ficheros, contratos Dart, backend, decisiones) + UI-UX (.pen Pencil en §UI-UX)</td><td><strong>Puerta 2:</strong> ¿cada flecha del flujo tiene artefacto? ¿decisiones justificadas? ¿pantallas cubren los escenarios UI?</td></tr>
       <tr><td><strong>3. Tareas</strong></td><td>tasks.md (oleadas, trazabilidad Req↔tarea↔test)</td><td><strong>(incluida en Puerta 2)</strong></td></tr>
       <tr><td><strong>4. Implementar</strong></td><td>Codigo + tests + commits atomicos por tarea</td><td><strong>Puerta 3:</strong> tests verdes, matriz llena, Clarity Gate, archive</td></tr>
     </tbody>

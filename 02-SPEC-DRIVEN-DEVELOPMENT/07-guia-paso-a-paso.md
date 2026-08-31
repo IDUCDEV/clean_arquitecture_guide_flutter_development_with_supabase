@@ -195,7 +195,7 @@ Checklist de la Puerta 1:
 
 ### Cuándo OMITIR design.md
 
-Si el cambio es **Simple** (1 feature, 0-1 tablas, 0 decisiones técnicas), puedes saltar design.md. La skill `clean-arch-feature` derivará los archivos de los requisitos automáticamente.
+Si el cambio es **Simple** (1 feature, 0-1 tablas, 0 decisiones técnicas, UI trivial), puedes saltar design.md. La skill `clean-arch-feature` derivará los archivos de los requisitos automáticamente. Un cambio Simple también **omite el archivo `.pen`** de pantallas.
 
 ### Qué escribir en design.md
 
@@ -275,6 +275,24 @@ Contratos Dart clave
     class [Name]Loaded extends [Name]State { final [Type] data; }
     class [Name]Error extends [Name]State { final String message; }
 
+#### Pantallas UI (UI-UX)
+
+El diseño visual se hace con **Pencil** (módulo 08, diseño manual) y se guarda en `openspec/changes/add-nombre/design/<feature>-ui.pen` (JSON diffable en git). En `design.md` solo se registra el mapeo pantalla→REQ; los mensajes/estados exactos viven en la spec. Simple omite esta sección.
+
+    UI-UX · Pantallas (archivo .pen)
+    | Pantalla (.pen)        | Escenario REQ | Estados visibles        | Notas |
+    |------------------------|---------------|-------------------------|-------|
+    | <Page> | REQ-00x | vacio · con datos · error | snackbars con el mensaje exacto del escenario |
+
+Ejemplo (add-cart):
+
+    | Archivo esperado: openspec/changes/add-cart/design/add-cart-ui.pen (no incluido en el ejemplo) |
+    | Pantalla          | Escenario REQ      | Estados visibles          | Notas |
+    |-------------------|--------------------|---------------------------|-------|
+    | CartPage (vacia)  | REQ-003            | EmptyState sin totales    | mensaje "Tu carrito esta vacio" |
+    | CartPage (llena)  | REQ-001..004       | items + subtotal/impuesto/total | recalculo tras add/remove/cupon |
+    | CartPage (error)  | REQ-001, REQ-004   | SnackBar "Producto {nombre} sin stock disponible" / "El cupon {codigo} ha expirado" | mensajes exactos de los escenarios |
+
 #### Flujo de datos
 
 Diagrama ASCII del recorrido completo, incluyendo errores:
@@ -323,6 +341,7 @@ Checklist de la Puerta 2:
 [ ] RLS especificada para toda tabla nueva/modificada
 [ ] Ninguna decisión importante quedó implícita
 [ ] Se respeta el patrón de las features existentes (o se justifica el cambio)
+[ ] Cada escenario REQ visible tiene su pantalla/estado diseñado (archivo .pen)
 [ ] `openspec validate` pasa sin errores
 ```
 

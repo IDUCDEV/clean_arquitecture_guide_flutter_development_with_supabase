@@ -105,6 +105,8 @@ Equivalencia de términos entre el método de diseño anterior y SDD:
 | Mapeo a capas | Tabla "Ficheros afectados" | `design.md` |
 | Contratos + ADRs | Sección Contratos Dart + Decisions | `design.md` |
 | Flujo de datos | Diagrama Page→Cubit→UseCase→Repo→DataSource→Supabase | `design.md` |
+| Diseño de pantallas (wireframes UI) | Sección `design.md §UI-UX` + archivo `.pen` (Pencil, módulo 08) | Fase 2 |
+| Estados de pantalla (mensajes exactos) | Escenarios EARS dentro de cada Requirement | Fase 1 |
 | Criterios BDD | Escenarios GIVEN-WHEN-THEN dentro de cada Requirement | deltas |
 
 > **Nota:** Los "Criterios BDD" y los "escenarios EARS" son la misma cosa: cada `#### Scenario:` con `GIVEN/WHEN/THEN` en `spec.md` **es** el criterio de aceptación. Ver también sección 1.5 de `02-sdd-flutter-supabase.md`.

@@ -325,7 +325,18 @@ Heurística sénior aplicada (qué haría un dev con años en este repo):
 - Un UseCase = una operación; el Cubit orquesta varios
 - Sin lógica de negocio en widgets ni en models
 
-**Salida de Fase 2:** `design.md`
+### 2.6 Diseño de interfaz (UI-UX) — archivo .pen
+
+El diseño visual de pantallas se hace con **Pencil** (módulo `08-PENCIL/`, diseño manual, sin IA) y viaja dentro del change folder:
+
+- **Ubicación:** `openspec/changes/<cambio>/design/<feature>-ui.pen` (JSON diffable en git, ver `08-PENCIL/08-cli-pen-format.md`)
+- **Registro en `design.md` §UI-UX:** tabla `Pantalla (.pen) | Escenario REQ | Estados visibles | Notas`; los mensajes/estados EXACTOS ya viven en los escenarios EARS de la spec — aquí se mapea cada pantalla a su REQ
+- **Regla de complejidad:** Simple omite el `.pen` (igual que `design.md`); Intermedia → wireframes de las pantallas clave; Compleja → mapa de pantallas por actor/escenario
+- **Puerta 2 valida** que todo escenario REQ con UI visible tiene pantalla/estado diseñado ANTES de tasks.md; la Oleada 3.3 implementa contra ese `.pen` aprobado
+
+> El principio es el del **Clarity Gate**: para UI compleja hay que capturar los supuestos visuales antes de implementar. Límite del antipatrón de **sobreespecificación**: wireframes, no pixel-árbol.
+
+**Salida de Fase 2:** `design.md` (+ `design/*.pen` cuando aplica)
 
 ---
 
@@ -338,6 +349,7 @@ Heurística sénior aplicada (qué haría un dev con años en este repo):
 [ ] RLS especificada para toda tabla nueva/modificada
 [ ] Ninguna decisión importante quedó implícita
 [ ] Se respeta el patrón de las features existentes (o se justifica el cambio)
+[ ] Cada escenario REQ visible tiene su pantalla/estado diseñado (archivo .pen)
 ```
 
 ---

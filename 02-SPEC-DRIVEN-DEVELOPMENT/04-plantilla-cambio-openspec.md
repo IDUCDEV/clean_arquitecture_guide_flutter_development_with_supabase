@@ -165,6 +165,14 @@ Flujo de datos
                               Either.left(Failure) ◄────────────┘
             ◄── CartError(message) ◄── mapeo de failures
 
+UI-UX · Pantallas (archivo .pen)
+<!-- Solo Intermedia/Compleja; Simple lo omite (igual que design.md).
+     Wireframes hechos con Pencil (modulo 08): openspec/changes/<cambio>/design/<feature>-ui.pen
+     Los mensajes/estados EXACTOS ya viven en la spec; aqui se mapea pantalla -> REQ. -->
+| Pantalla (.pen) | Escenario REQ | Estados visibles | Notas (interacciones) |
+|-----------------|---------------|------------------|------------------------|
+| <Page> | REQ-00x | vacio · con datos · error | <snackbars / empty states con el mensaje exacto> |
+
 Backend Supabase
 - Tablas: [columnas, tipos, FKs, constraints]
 - RLS: [política por escenario de seguridad]
