@@ -10,7 +10,7 @@
 <div class="header">
   <div class="mod">Módulo 18 · Clean Architecture + Flutter + Supabase</div>
   <h1>GUÍA RESUMEN — Debugging Flutter</h1>
-  <div class="sub">Resumen integral del debugging y la optimización en Flutter sin volver a leer el módulo completo. Hilo conductor: Modos de ejecución → launch.json y breakpoints → Debug Console → DevTools (Inspector, Performance, Memory, CPU, Network, Logging, App Size) → Rendimiento (rebuilds, memory leaks, rendering) → Debugging asíncrono → Workflow por tipo de bug.</div>
+  <div class="sub">Resumen integral del debugging y la optimización en Flutter sin volver a leer el módulo completo. Hilo conductor: Modos de ejecución → launch.json y breakpoints → Debug Console → DevTools (Inspector, Performance, Memory, CPU, Network, Logging, App Size) → Rendimiento (rebuilds, memory leaks, rendering) → Debugging asíncrono → Workflow por tipo de bug → Mentalidad y debugging programático → Playbook sistemático → Ejecución aislada de cada capa de Clean Architecture → Referencia rápida.</div>
 </div>
 
 <!-- ================= 0. MODOS DE EJECUCIÓN ================= -->
@@ -291,6 +291,40 @@ flutter build ios --analyze-size</span></pre>
   <div class="callout"><p><strong>Framework general:</strong> REPRODUCIR → AISLAR → DIAGNOSTICAR → CORREGIR → VERIFICAR.</p></div>
 </section>
 
+<!-- ================= 12. DEBUGGING POR CAPA ================= -->
+<section>
+  <div class="section-head s-deep">
+    <span class="num">12</span>
+    <h2>Debugging por capa: ejecución aislada con el debugger</h2>
+    <span class="meta">modo andamiaje SDD · scratchpad · real vs stub</span>
+  </div>
+
+  <p>Cuando desarrollas una feature en <strong>modo andamiaje SDD</strong> (los cuerpos empiezan con <code>throw UnimplementedError()</code>), la feature no está cableada y no puedes verla desde la app completa. La técnica: crear un <strong>scratchpad</strong> (<code>tool/scratch/main_&lt;capa&gt;.dart</code>), correrlo con el debugger (F5) y verificar cada capa aislada a medida que la implementas — sin tests obligatorios ni dependencia de la IA.</p>
+
+  <p><strong>Dos modos de verificación:</strong></p>
+  <table>
+    <thead><tr><th>Modo</th><th>Cuándo</th><th>Qué verificas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A · Real (integración)</strong></td><td>Capas de datos (datasource → Supabase, repository → datasource)</td><td>Respuesta real de la API, excepciones reales, request en Network View</td></tr>
+      <tr><td><strong>B · Aislado con stub</strong></td><td>Capas superiores (usecase, cubit) cuando la dependencia inferior no está lista</td><td>Lógica de la capa con un stub manual (<code>Either&lt;Failure,T&gt;</code>, transiciones de estado)</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Capa</th><th>Runtime</th><th>Modo</th><th>Qué verificas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Entity / Model / State</strong></td><td><code>dart run</code></td><td>—</td><td>Cálculos puros, roundtrip JSON, invariantes, Equatable/copyWith/props</td></tr>
+      <tr><td><strong>UseCase</strong></td><td><code>dart run</code></td><td>B stub</td><td><code>Either&lt;Failure,T&gt;</code> + mensajes exactos de validación</td></tr>
+      <tr><td><strong>DataSource</strong></td><td><code>flutter run -t</code></td><td>A real</td><td>Respuesta JSON real, AuthException/SocketException, RPC</td></tr>
+      <tr><td><strong>RepositoryImpl</strong></td><td><code>flutter run -t</code></td><td>A o B</td><td>Mapeo excepción → Failure, delega al datasource</td></tr>
+      <tr><td><strong>Cubit</strong></td><td><code>flutter run -t</code></td><td>B stub</td><td>Transiciones de estado (BlocObserver + Bloc Inspector)</td></tr>
+      <tr><td><strong>Page/Widget</strong></td><td><code>flutter run</code></td><td>A o B + Inspector</td><td>Render por cada estado (Loading/Loaded/Error)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><p><strong>Regla:</strong> inyecta dependencias a mano en el scratchpad, sin GetIt. Entra cada scratchpad en <code>launch.json</code> (agrúpalos con <code>presentation</code>). Secuencia: Entity → Model → DataSource → State → Repository → UseCase → Cubit → Page → Wiring. Verifica cada capa en cuanto la terminas, antes de construir la siguiente. Capas puras (entity/model/usecase/state) → <code>dart run</code>; capas con Flutter (datasource/cubit/page) → <code>flutter run -t</code>.</p></div>
+</section>
+
 <!-- ================= ANEXO ================= -->
 <section>
   <div class="section-head s-gray">
@@ -326,10 +360,15 @@ flutter build ios --analyze-size</span></pre>
       <tr><td>6 escenarios reales + app "enferma"</td><td class="mono">24-practicas-optimizacion.md</td></tr>
       <tr><td>5 bugs asíncronos, streams, isolates</td><td class="mono">25-debugging-asincrono.md</td></tr>
       <tr><td>Workflow por tipo de bug + cheat sheet</td><td class="mono">26-workflow-debugging-por-tipo.md</td></tr>
+      <tr><td>Mentalidad "No adivines, observa", checklists, cuándo (no) usar IA</td><td class="mono">27-mentalidad-debugging.md</td></tr>
+      <tr><td>debugPrint, dump methods, debug flags, assertions</td><td class="mono">28-debugging-programatico-flutter.md</td></tr>
+      <tr><td>Playbook sistemático de 6 pasos, binary search, matriz de bugs</td><td class="mono">29-playbook-debugging-sistematico.md</td></tr>
+      <tr><td>Referencia rápida imprimible de TODO el módulo</td><td class="mono">30-referencia-rapida-flutter-debugging.md</td></tr>
+      <tr><td>Ejecución aislada por capa: scratchpad, real vs stub, matriz por capa</td><td class="mono">31-debugging-por-capa.md</td></tr>
     </tbody>
   </table>
 
-  <div class="footer-note"><strong>Debugging Flutter en una línea:</strong> corre en debug para depurar, en profile para medir · pausa con breakpoints y logpoints · inspecciona con Debug Console · diagnostica con DevTools (frames, heap, requests) · optimiza rebuilds y rendering solo donde haya un problema medible · cancela subscriptions en dispose · y sigue el workflow: reproducir → aislar → diagnosticar → corregir → verificar.</div>
+  <div class="footer-note"><strong>Debugging Flutter en una línea:</strong> corre en debug para depurar, en profile para medir · pausa con breakpoints y logpoints · inspecciona con Debug Console · diagnostica con DevTools (frames, heap, requests) · observa antes de adivinar y sigue el playbook: entender → reproducir → aislar → diagnosticar → corregir → verificar · optimiza rebuilds y rendering solo donde haya un problema medible · cancela subscriptions en dispose · y en modo andamiaje SDD, verifica cada capa de Clean Architecture aislada con un scratchpad y el debugger (dart run para lógica pura, flutter run -t para datos/estado/UI), real para la API y stub para lo que aún no existe.</div>
 </section>
 
 </body>

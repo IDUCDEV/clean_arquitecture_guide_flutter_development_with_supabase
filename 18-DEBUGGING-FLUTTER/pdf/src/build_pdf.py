@@ -79,6 +79,21 @@ PARTS = [
             ("26", "Capítulo 26", "26-workflow-debugging-por-tipo.md"),
         ],
     ),
+    (
+        "Parte 5 · Maestría: mentalidad y debugging por capa",
+        [
+            ("27", "Capítulo 27", "27-mentalidad-debugging.md"),
+            ("28", "Capítulo 28", "28-debugging-programatico-flutter.md"),
+            ("29", "Capítulo 29", "29-playbook-debugging-sistematico.md"),
+            ("31", "Capítulo 31", "31-debugging-por-capa.md"),
+        ],
+    ),
+    (
+        "Parte 6 · Referencia rápida",
+        [
+            ("30", "Capítulo 30", "30-referencia-rapida-flutter-debugging.md"),
+        ],
+    ),
 ]
 
 
@@ -147,7 +162,7 @@ def build_complete():
     toc = (
         '<div class="toc">'
         "<h2>Contenido</h2>"
-        + f'<p class="toc-count">{total} capítulos · Debugging con VS Code + DevTools + Rendimiento (Flutter)</p>'
+        + f'<p class="toc-count">{total} capítulos · Debugging con VS Code + DevTools + Rendimiento + Maestría (Flutter)</p>'
         + "\n".join(toc_rows)
         + "</div>"
     )
@@ -155,7 +170,7 @@ def build_complete():
     cover = """<div class="cover">
   <span class="module-tag">Módulo 18</span>
   <h1>Debugging Flutter</h1>
-  <p class="subtitle">Guía completa de debugging y optimización en Flutter: debugger de VS Code (launch.json, breakpoints avanzados, Debug Console), DevTools (Inspector, Performance, Memory, CPU Profiler, Network, Logging, App Size), fundamentos de rendimiento, optimización de rebuilds y rendering, detección de memory leaks y debugging de código asíncrono.</p>
+  <p class="subtitle">Guía completa de debugging y optimización en Flutter: mentalidad anti-dependencia de la IA, debugger de VS Code (launch.json, breakpoints avanzados, Debug Console), DevTools (Inspector, Performance, Memory, CPU Profiler, Network, Logging, App Size), fundamentos de rendimiento, optimización de rebuilds y rendering, detección de memory leaks, debugging de código asíncrono, playbook sistemático y ejecución aislada de cada capa de Clean Architecture.</p>
   <table class="meta">
     <tr>
       <td><span class="label">Enfoque</span><span class="value">Debugging y profiling</span></td>
@@ -166,7 +181,7 @@ def build_complete():
       <td><span class="label">Tiempo estimado</span><span class="value">35–45 horas</span></td>
     </tr>
   </table>
-  <div class="tags"><span>VS Code</span><span>DevTools</span><span>Rendimiento</span><span>Memory</span><span>Network</span><span>Debugging</span></div>
+  <div class="tags"><span>VS Code</span><span>DevTools</span><span>Rendimiento</span><span>Memory</span><span>Network</span><span>Debugging</span><span>Clean Architecture</span></div>
 </div>"""
 
     doc = (
