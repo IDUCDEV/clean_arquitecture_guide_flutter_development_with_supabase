@@ -148,21 +148,30 @@ Equivalencia de términos entre el método de diseño anterior y SDD:
 
 ---
 
-## OpenSpec: comandos rápidos (CLI v1.6.0, OpenCode)
+## OpenSpec: comandos rápidos (CLI v1.11.0, OpenCode)
 
 | Comando | Acción |
 |---------|--------|
 | `npm install -g @fission-ai/openspec@latest` | Instalar |
 | `openspec init` | Inicializar en el proyecto |
+| `openspec update` | Refrescar skills y commands instalados |
+| `openspec list` | Listar cambios activos |
+| `openspec show <item>` | Ver un cambio o spec (reemplaza `change` y `spec` deprecated) |
+| `openspec show <item> --diff` | Ver diffs de requisitos contra specs principales |
+| `openspec status --change <id>` | Checklist de progreso de artifacts |
 | `openspec validate` | Validar formato de changes/specs |
-| `/opsx-explore` | Explorar opciones |
+| `openspec schemas` | Listar schemas de workflow disponibles |
+| `/opsx-explore` | Explorar opciones (no crea archivos) |
 | `/opsx-propose <nombre>` | Crear cambio completo |
 | `/opsx-apply-change` | Ejecutar tareas |
-| `/opsx-verify-change` | Verificar cumplimiento de specs |
-| `/opsx-archive-change` | Archivar cambio |
-| `openspec update` | Regenerar instrucciones de agentes |
+| `/opsx-verify-change` | Verificar cumplimiento de specs (solo reporte) |
+| `/opsx-archive-change` | Archivar cambio y consolidar specs |
+
+> **Deprecated:** `openspec change <id>` y `openspec spec <cap>` → usa `openspec show` en su lugar.
 
 Detalle completo: [03-openspec-guia-practica.md](./03-openspec-guia-practica.md)
+
+**Glosario oficial:** [openspec.dev/docs/glossary](https://openspec.dev/docs/glossary)
 
 ---
 

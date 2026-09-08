@@ -238,12 +238,24 @@ Trazabilidad
 
 ---
 
-## Configuración — que `/opsx-apply-change` respete el modo
+## Project Configuration (config.yaml)
 
-El modo se declara **por cambio** en la primera línea de `tasks.md` (véase arriba). Para que el agente de `/opsx-apply-change` —el único motor de implementación— lo cumpla de forma fiable, añade una vez al `openspec/config.yaml` de tu proyecto:
+`openspec/config.yaml` le dice a los workflows cómo planificar cambios. Tres campos principales:
+
+| Campo | Qué hace | Injectado en |
+|-------|----------|-------------|
+| `context` | Contexto que el agente recibe siempre | Todo: cada artifact, apply, archive |
+| `rules` | Reglas extra para un artifact específico | Solo la creación de ese artifact |
+| `operations` | Guía para apply y archive | Solo apply y archive |
+
+Para que `/opsx-apply-change` respete el modo de implementación, añade una vez al `openspec/config.yaml` de tu proyecto:
 
 ```yaml
-# openspec/config.yaml — se añade una sola vez; el interruptor por cambio es la línea "Modo" de tasks.md
+# openspec/config.yaml
+schema: spec-driven
+context: |
+  Tech stack: Flutter 3.x + Dart, Clean Architecture, Supabase
+
 operations:
   apply:
     guidance:
@@ -282,5 +294,9 @@ openspec validate            # formato OK
 # ... implementar (Fase 4) ...
 openspec archive add-<feature>
 ```
+
+**Tip:** para cambios sin specs (solo design + tasks, ej: integrar un paquete), agrega `skip_specs: true` al `.openspec.yaml` de la raíz. Esto indica al agente que no genere artifacts de specs para ese cambio.
+
+**Tip:** para verificar archivados, usa `openspec validate --archived`. Para revisar diffs de requisitos antes de archivar, `openspec show <cambio> --diff`.
 
 Ejemplos reales completados: [`ejemplos-cambios/`](./ejemplos-cambios/)

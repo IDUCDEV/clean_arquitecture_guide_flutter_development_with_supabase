@@ -115,6 +115,8 @@ openspec validate
 ```
 Si hay errores de formato, OpenSpec te dice cuáles corregir.
 
+**Tip:** usa `openspec status --change add-nombre` para ver un checklist de progreso de artifacts sin tener que revisar manualmente qué archivos faltan.
+
 ### Paso 3: Llenar spec.md
 
 Abre `openspec/changes/add-nombre/specs/{capability}/spec.md` y escribe los requisitos EARS.
@@ -480,6 +482,9 @@ Al cierre de cada oleada:
 ### Cerrar el cambio
 
 ```bash
+# Revisar diffs de requisitos antes de archivar (recomendado)
+openspec show add-nombre --diff
+
 # Verificar que cumple las specs
 /opsx-verify-change
 
@@ -1358,16 +1363,22 @@ openspec validate
 
 | Momento | Comando | Qué hace |
 |---------|---------|----------|
-| Explorar antes de decidir | `/opsx-explore` | IA lee codebase y sugiere opciones |
+| Explorar antes de decidir | `/opsx-explore` | IA lee codebase y sugiere opciones (no crea archivos) |
 | Crear cambio (artesano) | `/opsx-new-change` | Crea esqueleto de 4 archivos |
 | Crear cambio (copiloto) | `/opsx-propose add-nombre` | IA genera 4 archivos completos |
+| Crear cambio (fast-forward) | `/opsx-ff-change add-nombre` | Propose + todos los artifacts en un solo paso |
 | Continuar cambio existente | `/opsx-continue-change` | Reabre un cambio para iterar |
 | Registrar progreso | `/opsx-update-change` | Actualiza checklist de tareas |
 | Implementar (respeta el Modo de tasks.md) | `/opsx-apply-change` | andamiaje: scaffold por tarea + pausa · completo: IA escribe todo |
-| Verificar contra specs | `/opsx-verify-change` | Valida código vs requisitos |
+| Verificar contra specs | `/opsx-verify-change` | Valida código vs requisitos (solo reporte) |
 | Archivar cambio | `/opsx-archive-change` | Consolida specs y archiva |
+| Ver progreso de artifacts | `openspec status --change <id>` (CLI) | Checklist de qué artifacts faltan |
+| Ver diffs antes de archivar | `openspec show <cambio> --diff` (CLI) | Diffs de requisitos contra specs principales |
+| Ver un cambio o spec | `openspec show <item>` (CLI) | Reemplaza a `openspec change` y `openspec spec` (deprecated) |
 | Validar formato | `openspec validate` (CLI) | Comprueba schemas de archivos |
 | Verificar salud instalación | `openspec doctor` (CLI) | Diagnóstico de la instalación |
+
+> **Deprecated:** `openspec change <id>` y `openspec spec <cap>` → usa `openspec show` en su lugar.
 
 ---
 
