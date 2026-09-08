@@ -226,7 +226,34 @@ state is LoginLoading ? "cargando" : "listo"
 
 ---
 
-## 10. Checklist universal
+## 11. Ejecución aislada de una capa (modo andamiaje SDD)
+
+Verifica cada capa de Clean Architecture **por separado** con el debugger, sin la app completa ni la IA.
+
+### 11.1 Scratchpad
+Crea `tool/scratch/main_<capa>.dart` y lánzalo con el debugger (F5). Entradas en `launch.json` (ver [02](./02-configuracion-launch-json.md)).
+
+### 11.2 Matrix por capa
+
+| Capa | Runtime | Modo | Qué verifico |
+|---|---|---|---|
+| Entity | `dart run` | — | cálculos, invariantes, Equatable/copyWith |
+| Model | `dart run` | — | fromJson/toJson, roundtrip |
+| State | `dart run` | — | igualdad/props |
+| UseCase | `dart run` | **B stub** | Either<Failure,T>, mensajes exactos |
+| DataSource | `flutter run -t` | **A real** | respuesta JSON real, excepciones reales |
+| Repository | `flutter run -t` | A o B | excepción→Failure |
+| Cubit | `flutter run -t` | A o B | transiciones de estado |
+| Page | `flutter run` | A o B | render por estado |
+
+**Modo A (real):** inyecta dependencias reales (datasource→Supabase). Ver respuesta real + Network View.
+**Modo B (stub):** inyecta stub manual cuando la dependencia inferior aún no está. Verifica la lógica de la capa.
+
+> Detalle completo en [31-debugging-por-capa.md](./31-debugging-por-capa.md)
+
+---
+
+## 12. Checklist universal
 
 ```
 □ Puedo reproducir el bug
@@ -258,6 +285,7 @@ state is LoginLoading ? "cargando" : "listo"
 | Debug programático | [28-debugging-programatico-flutter.md](./28-debugging-programatico-flutter.md) |
 | Playbook sistemático | [29-playbook-debugging-sistematico.md](./29-playbook-debugging-sistematico.md) |
 | Workflow por tipo | [26-workflow-debugging-por-tipo.md](./26-workflow-debugging-por-tipo.md) |
+| Debugging por capa | [31-debugging-por-capa.md](./31-debugging-por-capa.md) |
 
 ---
 

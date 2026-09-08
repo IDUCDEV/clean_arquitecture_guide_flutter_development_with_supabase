@@ -8,6 +8,7 @@ Este módulo cubre tres pilares del debugging:
 2. **VS Code Debugging** — El debugger integrado en tu IDE
 3. **Flutter DevTools** — La suite completa de profiling y diagnóstico
 4. **Debugging programático** — Herramientas de debug desde el código Dart
+5. **Debugging por capa** — Ejecutar cada capa de Clean Architecture aislada con el debugger (modo andamiaje SDD)
 
 ---
 
@@ -40,6 +41,10 @@ No entiendo por qué un widget se ve mal
 
 Necesito una referencia rápida de todo
   └── 30-referencia-rapida-flutter-debugging.md
+
+Implementé una capa del andamiaje SDD y quiero verificarla aislada
+  └── 31-debugging-por-capa.md (scratchpad, dart run / flutter run -t)
+  └── Modo real (datasource→Supabase) vs Modo stub (usecase/cubit)
 ```
 
 ---
@@ -52,6 +57,7 @@ Necesito una referencia rápida de todo
 | [16-BLOC-CUBIT](../16-BLOC-CUBIT/) | Debugging de BLoC/Cubit es escenario principal |
 | [01-CLEAN-ARCHITECTURE](../01-CLEAN-ARCHITECTURE/) | Entender capas para saber dónde poner breakpoints |
 | [03-SUPABASE](../03-SUPABASE/) | Debugging de llamadas a Supabase |
+| [02-SPEC-DRIVEN-DEVELOPMENT](../02-SPEC-DRIVEN-DEVELOPMENT/) | Andamiaje SDD: contexto del capítulo 31 (verificar capa a capa) |
 
 ---
 
@@ -96,6 +102,8 @@ Necesito una referencia rápida de todo
 | 25 | [25-debugging-asincrono.md](./25-debugging-asincrono.md) | Debugging asíncrono |
 | 26 | [26-workflow-debugging-por-tipo.md](./26-workflow-debugging-por-tipo.md) | Workflow por tipo de bug |
 | 29 | [29-playbook-debugging-sistematico.md](./29-playbook-debugging-sistematico.md) | Playbook de debugging sistemático |
+| **Fase 4.5: Debugging por capa** | | |
+| 31 | [31-debugging-por-capa.md](./31-debugging-por-capa.md) | Ejecución aislada de cada capa de Clean Architecture con el debugger (modo andamiaje SDD) |
 | **Fase 5: Referencia** | | |
 | 30 | [30-referencia-rapida-flutter-debugging.md](./30-referencia-rapida-flutter-debugging.md) | Referencia rápida de todo el módulo |
 
@@ -123,6 +131,10 @@ Fase 3: Rendimiento
 Fase 4: Maestría
   ├── debugging asíncrono -> workflow por tipo de bug
   └── playbook sistemático (NUEVO - tu hoja de ruta para diagnosticar cualquier bug)
+
+Fase 4.5: Debugging por capa (NUEVO)
+  └── ejecución aislada por capa (scratchpad) → cómo verificar cada capa
+      del andamiaje SDD con el debugger, sin depender de la IA ni de la app completa
 
 Fase 5: Referencia (NUEVO)
   └── referencia rápida imprimible con TODO el módulo en una página

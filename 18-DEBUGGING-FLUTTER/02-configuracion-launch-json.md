@@ -531,6 +531,35 @@ Requiere un `tasks.json` correspondiente:
 
 ---
 
+## 16. Scratchpads: lanzar un entrypoint aislado por capa
+
+Cuando desarrollas en modo andamiaje (ver [31-debugging-por-capa.md](./31-debugging-por-capa.md)), creas entrypoints aislados en `tool/scratch/` para **correr cada capa de Clean Architecture por separado con el debugger**. Añade una configuración por cada scratchpad:
+
+```json
+{
+  "name": "Scratch: UseCase (dart)",
+  "type": "dart",
+  "request": "launch",
+  "program": "tool/scratch/main_usecase.dart"
+},
+{
+  "name": "Scratch: DataSource (flutter)",
+  "type": "dart",
+  "request": "launch",
+  "program": "tool/scratch/main_datasource.dart",
+  "dartDefine": [
+    "SUPABASE_URL=http://localhost:54321",
+    "SUPABASE_ANON_KEY=eyJ..."
+  ]
+}
+```
+
+> **Tip:** Agrúpalos con `presentation` ([§13](#13-presentation--ordenar-y-agrupar-configuraciones)) en un submenú `Scratch: *` para no ensuciar la lista de configuraciones de la app.
+>
+> **Capas puras sin Flutter** (entity, model, usecase → `dart run`) vs **capas con Flutter** (datasource, cubit, page → `flutter run -t`). La única diferencia en el `launch.json` es el `program`; el runtime lo decide el contenido de la capa.
+
+---
+
 ## 12. Ejemplo completo de `launch.json` para un proyecto real
 
 ```json

@@ -273,6 +273,7 @@ Timer.periodic(Duration(seconds: 1), (_) {}); // Nunca se cancela
 Este workflow cierra la guía: combina todo lo aprendido en los capítulos anteriores — DevTools, rendering, rendimiento, debugging de UI y código asíncrono — para diagnosticar y resolver cualquier problema que aparezca en tu app Flutter.
 
 > Para un enfoque paso-a-paso más sistemático, ver [29-playbook-debugging-sistematico.md](./29-playbook-debugging-sistematico.md).
+> Para verificar **cada capa de Clean Architecture de forma aislada** mientras desarrollas una feature (modo andamiaje SDD), ver [31-debugging-por-capa.md](./31-debugging-por-capa.md).
 
 ---
 
