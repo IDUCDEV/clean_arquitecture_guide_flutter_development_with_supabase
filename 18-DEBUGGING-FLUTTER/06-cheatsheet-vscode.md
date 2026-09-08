@@ -308,7 +308,44 @@ Solución: Usa --debug, o agrega un print()/logpoint antes del breakpoint
 
 ---
 
-## 10. Flujo de debugging típico
+## 10. Variable Substitution — Referencia rápida
+
+| Variable | Ejemplo de resolución |
+|---|---|
+| `${workspaceFolder}` | `/home/user/mi-app` |
+| `${file}` | `lib/features/login/presentation/pages/login_page.dart` |
+| `${fileBasename}` | `login_page.dart` |
+| `${fileDirname}` | `lib/features/login/presentation/pages` |
+| `${env:HOME}` | `/home/user` |
+| `${env:PATH}` | `/usr/bin:/usr/local/bin:...` |
+
+Uso: `"program": "${file}"` → lanza el archivo activo en el editor.
+
+---
+
+## 11. Platform-specific & Presentation — Referencia rápida
+
+### Platform-specific
+
+```json
+"windows": {"program": "lib/main_windows.dart"},
+"linux": {"program": "lib/main_linux.dart"},
+"osx": {"program": "lib/main_macos.dart"}
+```
+
+### Presentation
+
+```json
+"presentation": {"order": 1, "group": "Flutter", "hidden": false}
+```
+
+- `order`: posición en el dropdown (menor = primero)
+- `group`: agrupar en submenu
+- `hidden`: ocultar del dropdown
+
+---
+
+## 12. Flujo de debugging típico
 
 ```
 1. F5 (Start)

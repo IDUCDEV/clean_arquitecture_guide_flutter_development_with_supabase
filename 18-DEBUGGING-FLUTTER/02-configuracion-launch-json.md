@@ -388,7 +388,139 @@ Los compounds permiten lanzar varias configuraciones simultáneamente:
 
 ---
 
-## 11. Mejores prácticas
+## 11. Variable Substitution
+
+`launch.json` soporta variables que se resuelven en tiempo de ejecución:
+
+### 11.1 Variables comunes
+
+| Variable | Qué resuelve | Ejemplo |
+|---|---|---|
+| `${workspaceFolder}` | Raíz del workspace | `/home/user/mi-app` |
+| `${file}` | Archivo activo en el editor | `lib/main.dart` |
+| `${fileBasename}` | Solo el nombre del archivo | `main.dart` |
+| `${fileDirname}` | Directorio del archivo activo | `lib` |
+| `${cwd}` | Directorio de trabajo actual | `/home/user/mi-app` |
+| `${env:NAME}` | Variable de entorno | `${env:HOME}` → `/home/user` |
+| `${command:ید}` | Resultado de un comando | `${command:flutter}` |
+
+### 11.2 Ejemplo práctico
+
+```json
+{
+  "name": "Debug current file",
+  "type": "dart",
+  "request": "launch",
+  "program": "${file}"
+}
+```
+
+Esto lanza siempre el archivo que tengas abierto. Útil para debugging rápido.
+
+---
+
+## 12. Platform-specific properties
+
+Puedes definir propiedades que solo apliquen a una plataforma:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (Debug)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "windows": {
+        "program": "lib/main_windows.dart"
+      },
+      "linux": {
+        "program": "lib/main_linux.dart"
+      },
+      "osx": {
+        "program": "lib/main_macos.dart"
+      }
+    }
+  ]
+}
+```
+
+---
+
+## 13. `presentation` — Ordenar y agrupar configuraciones
+
+Controla cómo aparecen en el dropdown de debugging:
+
+```json
+{
+  "name": "Flutter (Debug)",
+  "type": "dart",
+  "request": "launch",
+  "program": "lib/main.dart",
+  "presentation": {
+    "order": 1,
+    "group": "Flutter",
+    "hidden": false
+  }
+}
+```
+
+| Propiedad | Qué hace |
+|---|---|
+| `order` | Orden en el dropdown (menor = primero) |
+| `group` | Agrupar bajo un submenu |
+| `hidden` | Ocultar del dropdown (accesible solo vía Command Palette) |
+
+---
+
+## 14. `preLaunchTask` y `postDebugTask`
+
+Integra con `tasks.json` para ejecutar tareas antes/después de debug:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (Debug)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "preLaunchTask": "flutter pub get",
+      "postDebugTask": "flutter analyze"
+    }
+  ]
+}
+```
+
+Requiere un `tasks.json` correspondiente:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "flutter pub get",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["pub", "get"],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "flutter analyze",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["analyze"],
+      "presentation": { "reveal": "always" }
+    }
+  ]
+}
+```
+
+---
+
+## 15. Mejores prácticas
 
 1. **Nunca guardes secrets en `launch.json`**: usa variables de entorno o `.env`
 2. **Usa `flutterMode` en lugar de banderas sueltas**: es más limpio que `toolArgs: ["--profile"]`
@@ -477,8 +609,9 @@ Los compounds permiten lanzar varias configuraciones simultáneamente:
 ## 📚 Referencias
 
 - [Flutter | VS Code — Run and debug](https://docs.flutter.dev/tools/vs-code) — Documentación oficial de debugging en VS Code
-- [VS Code | Debugging](https://code.visualstudio.com/docs/editor/debugging) — Conceptos de launch.json y configuraciones
-- [VS Code | Tasks](https://code.visualstudio.com/docs/editor/tasks) — Para `preLaunchTask` en compounds
+- [VS Code | Debugging](https://code.visualstudio.com/docs/debugtest/debugging) — Conceptos de launch.json y configuraciones
+- [VS Code | Debugging configuration](https://code.visualstudio.com/docs/debugtest/debugging-configuration) — Variable substitution, platform-specific, presentation
+- [VS Code | Tasks](https://code.visualstudio.com/docs/editor/tasks) — Para `preLaunchTask` y `postDebugTask`
 - [Dart-Code | Debugging](https://dartcode.org/docs/debugging/) — Guía oficial de la extensión Dart-Code
 
 ---

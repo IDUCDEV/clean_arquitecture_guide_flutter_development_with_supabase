@@ -4,6 +4,22 @@
 
 ---
 
+## 0. Mentalidad del debugger
+
+> Antes de aprender herramientas, establece la mentalidad. Lee [27-mentalidad-debugging.md](./27-mentalidad-debugging.md) para entender la filosofía: "No adivines, observa".
+
+Los 3 principios clave:
+
+1. **No supongas, verifica** — Usa breakpoints y datos, no intuición
+2. **Reduce el espacio de búsqueda** — Binary search debugging (a la mitad en cada paso)
+3. **Reproduce antes de arreglar** — Si no puedes reproducir, no puedes arreglar
+
+Y la regla anti-dependencia-AI:
+
+> **"¿Podrías explicarle a otro developer exactamente qué está pasando?"** Si la respuesta es NO, no entiendes el bug todavía. Usa el debugger para entenderlo antes de pedir ayuda.
+
+---
+
 ## 1. ¿Qué es el debugging?
 
 Debugging es el proceso de **encontrar y corregir errores** en tu código. Pero no se trata solo de cazar bugs: es entender el comportamiento de tu aplicación en tiempo real, inspeccionar el estado del programa en cualquier momento y razonar sobre por qué algo no funciona como esperabas.
@@ -287,10 +303,13 @@ Esto es extremadamente útil para:
 
 ## 📚 Referencias
 
+- [Flutter | Debugging tools](https://docs.flutter.dev/tools/debugging) — Debugging desde código y herramientas de Flutter
 - [Flutter | VS Code](https://docs.flutter.dev/tools/vs-code) — Guía oficial de VS Code para Flutter
 - [Flutter | Hot reload](https://docs.flutter.dev/tools/hot-reload) — Qué se puede y no se puede hot reload
 - [Flutter | Build modes](https://docs.flutter.dev/testing/build-modes) — Debug, Profile y Release en detalle
-- [VS Code | Debugging](https://code.visualstudio.com/docs/editor/debugging) — Conceptos generales del debugger
+- [VS Code | Debugging](https://code.visualstudio.com/docs/debugtest/debugging) — Conceptos generales del debugger
+- [27-mentalidad-debugging.md](./27-mentalidad-debugging.md) — Filosofía de debugging: piensa como un debugger
+- [28-debugging-programatico-flutter.md](./28-debugging-programatico-flutter.md) — Herramientas de debug desde código
 
 ---
 

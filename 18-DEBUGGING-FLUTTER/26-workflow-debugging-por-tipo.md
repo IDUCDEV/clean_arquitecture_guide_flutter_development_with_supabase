@@ -30,6 +30,19 @@
 
 **Herramienta:** DevTools → Flutter Inspector → Select Widget
 
+**Desde código (sin DevTools):**
+```dart
+// Ver bounds y constraints de cada widget
+debugPaintSizeEnabled = true;
+
+// Ver árbol de widgets completo
+debugDumpWidgetTree();
+
+// Ver qué se repinta
+debugProfilePaintsEnabled = true;
+```
+> Ver [28-debugging-programatico-flutter.md](./28-debugging-programatico-flutter.md) para todas las herramientas programáticas.
+
 **Ejemplo:**
 
 ```dart
@@ -258,6 +271,8 @@ Timer.periodic(Duration(seconds: 1), (_) {}); // Nunca se cancela
 | **Hot Reload** | Cambiar a Hot Restart | Consola / VS Code |
 
 Este workflow cierra la guía: combina todo lo aprendido en los capítulos anteriores — DevTools, rendering, rendimiento, debugging de UI y código asíncrono — para diagnosticar y resolver cualquier problema que aparezca en tu app Flutter.
+
+> Para un enfoque paso-a-paso más sistemático, ver [29-playbook-debugging-sistematico.md](./29-playbook-debugging-sistematico.md).
 
 ---
 
