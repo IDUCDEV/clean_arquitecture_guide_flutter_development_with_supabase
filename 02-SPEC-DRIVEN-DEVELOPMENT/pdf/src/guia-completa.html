@@ -1216,11 +1216,11 @@ OLEADA 5 — Tests
 </ul>
 </div></div>
 <div class="chapter"><div class="chapter-head"><span class="num-chip">Herramienta OpenSpec</span><div class="kick">Parte 1 · Nucleo del modulo</div><h2>03 - OpenSpec: Guía Práctica</h2></div><div class="article"><blockquote>
-<p>La herramienta líder de SDD. Specs como markdown vivo en tu repositorio, ejecutables por 30+ agentes de IA.</p>
+<p>La herramienta líder de SDD. Specs como markdown vivo en tu repositorio, ejecutables por 40+ agentes de IA.</p>
 </blockquote>
 <hr />
 <h2 id="qué-es-openspec">Qué es OpenSpec</h2>
-<p>OpenSpec es un framework ligero de Spec Driven Development, open source (MIT), creado por Fission-AI. Tiene 65.7k estrellas en GitHub y es la herramienta más adoptada para implementar SDD en proyectos reales.</p>
+<p>OpenSpec es un framework ligero de Spec Driven Development, open source (MIT), creado por Fission-AI. Tiene 66.9k estrellas en GitHub, más de 265k desarrolladores al mes, y crea una nueva spec cada dos segundos. Es la herramienta más adoptada para implementar SDD en proyectos reales.</p>
 <p><strong>Filosofía:</strong></p>
 <ul>
 <li>Fluid, no rígido</li>
@@ -1234,6 +1234,7 @@ OLEADA 5 — Tests
 <h2 id="instalación">Instalación</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Requiere Node.js 20.19.0 o superior</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> @fission-ai/openspec@latest</span></code></pre></div>
+<p>También soporta pnpm, yarn (solo Classic 1.x), bun, deno y nix. Detalles en <a href="https://openspec.dev/docs/installation">openspec.dev/docs/installation</a>.</p>
 <p><strong>Verificar instalación:</strong></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> <span class="at">--version</span></span></code></pre></div>
 <hr />
@@ -1241,33 +1242,96 @@ OLEADA 5 — Tests
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Navega a la raíz de tu proyecto Flutter</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mi-proyecto-flutter</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Inicializa OpenSpec</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> init</span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Inicializa OpenSpec (interactive: pregunta qué agentes usas)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> init</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># O saltar el picker:</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> init <span class="at">--tools</span> opencode</span></code></pre></div>
 <p><strong>Qué crea:</strong></p>
 <pre><code>mi-proyecto-flutter/
 ├── openspec/
-│   ├── specs/                    ← Specs vivas del proyecto
+│   ├── config.yaml           ← Configuración del proyecto (contexto, reglas, operaciones)
+│   ├── specs/                ← Specs vivas del proyecto
 │   │   └── .gitkeep
-│   └── changes/                  ← Cambios en progreso
-│       └── .gitkeep
-├── AGENTS.md                     ← Constitución del proyecto (instrucciones para agentes IA)
-└── .openspec/                    ← Configuración interna</code></pre>
-<p><strong><code>openspec init</code> pregunta qué agentes usas y genera sus archivos de configuración.</strong> Con OpenCode seleccionado genera:</p>
-<pre><code>.opencode/commands/
-├── opsx-explore.md               → invocable como /opsx-explore
-├── opsx-propose.md               → /opsx-propose
-├── opsx-new-change.md            → /opsx-new-change
-└── ...                           (un archivo por comando)</code></pre>
-<p>Otros agentes reciben su equivalente (<code>CLAUDE.md</code> + <code>.claude/commands/opsx/</code>, <code>.cursorrules</code>, <code>.github/copilot-instructions.md</code>, etc.).</p>
+│   └── changes/              ← Cambios en progreso
+│       └── archive/          ← Cambios completados se mueven aquí
+│           └── .gitkeep
+├── AGENTS.md                 ← Constitución del proyecto (instrucciones para agentes IA)
+└── .opencode/                ← Archivos de configuración para OpenCode
+    ├── skills/               ← Skills (instrucciones workflows)
+    │   ├── openspec-explore/
+    │   ├── openspec-propose/
+    │   ├── openspec-apply-change/
+    │   └── ...
+    └── commands/             ← Comandos slash (entry points alternativos)
+        ├── opsx-explore.md   → /opsx-explore
+        ├── opsx-propose.md   → /opsx-propose
+        └── ...</code></pre>
+<p><strong><code>openspec init</code> pregunta qué agentes usas y genera sus archivos de configuración.</strong> Cada agente recibe skills + commands en su formato nativo (<code>.claude/skills/</code> + <code>.claude/commands/opsx/</code>, <code>.cursor/skills/</code> + <code>.cursor/commands/</code>, etc.). Ver <a href="https://openspec.dev/docs/supported-tools">supported tools</a> para la matriz completa (40+ herramientas).</p>
 <blockquote>
-<p><strong>Verificado contra CLI v1.6.0</strong> (<code>@fission-ai/openspec</code>). Si tu versión difiere, ejecuta <code>openspec --version</code> y <code>openspec update</code> tras instalar.</p>
+<p><strong>Verificado contra CLI v1.11.0</strong> (<code>@fission-ai/openspec</code>). Si tu versión difiere, ejecuta <code>openspec --version</code> y <code>openspec update</code> tras instalar.</p>
 </blockquote>
 <hr />
-<h2 id="workflow-completo">Workflow completo</h2>
+<h2 id="skills-vs-commands-delivery-modes">Skills vs Commands (Delivery modes)</h2>
+<p>OpenSpec instala cada workflow en <strong>dos formas</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Ejemplo (OpenCode)</th>
+<th>Qué es</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skill</strong></td>
+<td><code>openspec-apply-change</code></td>
+<td>Instrucciones que el agente carga automáticamente</td>
+</tr>
+<tr>
+<td><strong>Command</strong></td>
+<td><code>/opsx-apply</code></td>
+<td>Entry point slash que escribes tú</td>
+</tr>
+</tbody>
+</table>
+<p>Las dos son funcionalmente idénticas. Skills son el estándar más nuevo y compartido entre herramientas; commands son el entry point para herramientas que no pueden invocar skills directamente.</p>
+<p><strong>Delivery modes</strong> (configurados con <code>openspec config profile</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Qué instala</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>both</code> (default)</td>
+<td>Skills + commands</td>
+</tr>
+<tr>
+<td><code>skills</code></td>
+<td>Solo skills</td>
+</tr>
+<tr>
+<td><code>commands</code></td>
+<td>Solo commands</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cambiar delivery mode</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> config set delivery skills</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Picker interactivo de profiles y delivery</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> config profile</span></code></pre></div>
+<hr />
+<h2 id="workflow-completo-5-pasos">Workflow completo (5 pasos)</h2>
+<pre><code>1. Explore  →  2. Propose  →  3. Review  →  4. Apply  →  5. Archive
+   pensar        planificar     corregir      construir     consolidar</code></pre>
 <h3 id="paso-1-explorar-antes-de-decidir">Paso 1: Explorar antes de decidir</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En tu agente IA (OpenCode, Claude Code, Cursor, etc.)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-explore</span></span></code></pre></div>
-<p>El agente lee tu codebase y te ayuda a pensar antes de escribir nada. Útil cuando no estás seguro de cómo implementar algo.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># En tu agente IA (OpenCode, Claude Code, Cursor, etc.)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-explore</span></span></code></pre></div>
+<p>El agente lee tu codebase y te ayuda a pensar antes de escribir nada. <strong>No crea archivos ni escribe código.</strong> Útil cuando no estás seguro de cómo implementar algo.</p>
 <p><strong>Ejemplo:</strong></p>
 <pre><code>Tú: /opsx-explore
 IA: ¿Qué quieres explorar?
@@ -1277,14 +1341,14 @@ IA: [lee tu setup de temas] La ruta más limpia: ThemeMode en el Cubit raíz +
     Sin dependencias nuevas. ¿Lo acotamos?
 Tú: Sí, hagámoslo</code></pre>
 <h3 id="paso-2-proponer-un-cambio">Paso 2: Proponer un cambio</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-propose</span> add-dark-mode</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-propose</span> add-dark-mode</span></code></pre></div>
 <p>OpenSpec genera una carpeta completa de cambio:</p>
 <pre><code>openspec/changes/add-dark-mode/
 ├── proposal.md       ← Por qué y qué cambia
 ├── specs/            ← Requirements y escenarios
 │   └── theme/
 │       └── spec.md
-├── design.md         ← Decisiones técnicas
+├── design.md         ← Decisiones técnicas (solo si aplica)
 └── tasks.md          ← Checklist de implementación</code></pre>
 <p><strong>El agente genera esto automáticamente.</strong> Tú solo revisas y ajustas.</p>
 <h3 id="paso-3-revisar-el-plan">Paso 3: Revisar el plan</h3>
@@ -1295,34 +1359,36 @@ Tú: Sí, hagámoslo</code></pre>
 <li><code>design.md</code> — ¿Las decisiones técnicas son coherentes con el codebase?</li>
 <li><code>tasks.md</code> — ¿Las tareas están en el orden correcto?</li>
 </ul>
+<p><strong>Tip:</strong> usa <code>openspec show add-dark-mode --diff</code> para ver los diffs de requisitos contra las specs principales antes de archivar.</p>
 <h3 id="paso-4-ejecutar">Paso 4: Ejecutar</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-apply-change</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-apply-change</span></span></code></pre></div>
 <p>El agente implementa las tareas una por una:</p>
 <pre><code>✓ 1.1 ThemeCubit + estados sealed
 ✓ 1.2 Persistencia de preferencia
 ✓ 2.1 ThemeData claro/oscuro en app_theme.dart
 ✓ 2.2 Ruta y wiring en app_router.dart</code></pre>
+<p><strong>Si se interrumpe o agota contexto:</strong> abre nueva sesión y vuelve a pedir apply. Reanuda en la primera tarea sin marcar.</p>
 <h3 id="paso-5-archivar">Paso 5: Archivar</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-archive-change</span></span></code></pre></div>
-<p>El cambio se archiva y las specs se actualizan. Listo para el siguiente feature.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/opsx-archive-change</span></span></code></pre></div>
+<p>El cambio se archiva en <code>openspec/changes/archive/YYYY-MM-DD-nombre/</code> y las deltas se fusionan con las specs principales. Listo para el siguiente feature.</p>
 <hr />
 <h2 id="qué-son-las-specs-en-openspec">Qué son las specs en OpenSpec</h2>
 <p>Las specs son <strong>markdown simple</strong> con requisitos concretos y escenarios. No hay sintaxis especial que aprender.</p>
 <p><strong>Ejemplo de spec:</strong></p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ADDED Requirements</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Theme selection</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>The app SHALL let users switch between light and dark themes,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>defaulting to the system preference.</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: User toggles dark mode</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**WHEN** the user clicks the theme toggle</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**THEN** the app switches to dark mode and persists the choice</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: System preference detection</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GIVEN** the user has not set a theme preference</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**WHEN** the app loads</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**THEN** the theme matches the system setting</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ADDED Requirements</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Theme selection</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>The app SHALL let users switch between light and dark themes,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>defaulting to the system preference.</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: User toggles dark mode</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**WHEN** the user clicks the theme toggle</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**THEN** the app switches to dark mode and persists the choice</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: System preference detection</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GIVEN** the user has not set a theme preference</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**WHEN** the app loads</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**THEN** the theme matches the system setting</span></code></pre></div>
 <p><strong>Cómo se organizan:</strong></p>
 <pre><code>openspec/specs/
 ├── auth-login/
@@ -1334,81 +1400,342 @@ Tú: Sí, hagámoslo</code></pre>
 └── checkout-payment/
     └── spec.md</code></pre>
 <p>Cada spec vive en su carpeta, al lado del código que implementa. Cuando un agente necesita contexto, lee la spec. Cuando alguien nuevo se une al equipo, browsa la biblioteca.</p>
+<p><strong>Delta specs</strong> (en los cambios): solo describen lo que cambia, bajo headers <code>ADDED</code> / <code>MODIFIED</code> / <code>REMOVED</code> / <code>RENAMED</code>. Al archivar, se fusionan con las specs principales.</p>
 <hr />
-<h2 id="slash-commands-disponibles-opencode-cli-v160">Slash commands disponibles (OpenCode, CLI v1.6.0)</h2>
+<h2 id="skills-disponibles-12-workflows">Skills disponibles (12 workflows)</h2>
+<h3 id="core-6--instalados-por-defecto">Core (6 — instalados por defecto)</h3>
 <table>
 <thead>
 <tr>
-<th>Comando</th>
+<th>Skill</th>
 <th>Función</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>/opsx-explore</code></td>
-<td>Explorar opciones antes de decidir (no crea cambio)</td>
+<td><code>openspec-explore</code></td>
+<td>Explorar opciones antes de decidir (no crea archivos)</td>
 </tr>
 <tr>
-<td><code>/opsx-propose &lt;nombre&gt;</code></td>
-<td>Crear proposal + specs + design + tasks</td>
+<td><code>openspec-propose &lt;nombre&gt;</code></td>
+<td>Crear proposal + specs + design + tasks en un paso</td>
 </tr>
 <tr>
-<td><code>/opsx-new-change</code></td>
-<td>Nuevo cambio con workflow guiado completo</td>
-</tr>
-<tr>
-<td><code>/opsx-continue-change</code></td>
-<td>Continuar un cambio existente donde quedó</td>
-</tr>
-<tr>
-<td><code>/opsx-update-change</code></td>
-<td>Registrar progreso de tareas en el cambio</td>
-</tr>
-<tr>
-<td><code>/opsx-apply-change</code></td>
+<td><code>openspec-apply-change</code></td>
 <td>Ejecutar las tareas del cambio actual</td>
 </tr>
 <tr>
-<td><code>/opsx-verify-change</code></td>
-<td>Verificar que la implementación cumple las specs</td>
+<td><code>openspec-update-change</code></td>
+<td>Revisar coherencia y actualizar artefactos existentes</td>
 </tr>
 <tr>
-<td><code>/opsx-archive-change</code></td>
+<td><code>openspec-sync-specs</code></td>
+<td>Fusionar deltas de specs con las specs principales (sin archivar)</td>
+</tr>
+<tr>
+<td><code>openspec-archive-change</code></td>
 <td>Archivar cambio completado y consolidar specs</td>
 </tr>
+</tbody>
+</table>
+<h3 id="optional-6--se-agregan-con-openspec-config-profile">Optional (6 — se agregan con <code>openspec config profile</code>)</h3>
+<table>
+<thead>
 <tr>
-<td><code>/opsx-bulk-archive-change</code></td>
-<td>Archivar varios cambios completados</td>
+<th>Skill</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openspec-new-change</code></td>
+<td>Crear esqueleto vacío de cambio (modo artesano)</td>
 </tr>
 <tr>
-<td><code>/opsx-sync-specs</code></td>
-<td>Sincronizar deltas archivados con las specs vivas</td>
+<td><code>openspec-continue-change</code></td>
+<td>Crear el siguiente artifact uno a uno</td>
 </tr>
 <tr>
-<td><code>/opsx-onboard</code></td>
-<td>Onboarding de un nuevo desarrollador</td>
+<td><code>openspec-ff-change</code></td>
+<td>Fast-forward: crear proposal + todos los artifacts en un solo paso</td>
+</tr>
+<tr>
+<td><code>openspec-verify-change</code></td>
+<td>Verificar que la implementación cumple las specs (solo reporte)</td>
+</tr>
+<tr>
+<td><code>openspec-bulk-archive-change</code></td>
+<td>Archivar varios cambios completados a la vez</td>
+</tr>
+<tr>
+<td><code>openspec-onboard</code></td>
+<td>Onboarding: aprender el workflow haciendo un cambio real (~15 min)</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Nota:</strong> el prefijo puede variar según el agente seleccionado en <code>init</code>/<code>update</code> (Claude Code usa <code>.claude/commands/opsx/&lt;id&gt;.md</code>, etc.). Los IDs de workflow son los mismos; verifica los archivos generados en tu proyecto.</p>
+<p><strong>Nota:</strong> el nombre del skill puede variar como slash command según el agente. OpenCode usa <code>/opsx-explore</code>, Claude Code usa <code>/opsx:explore</code>, Cursor usa <code>/opsx-explore</code>. Los skill IDs (<code>openspec-explore</code>) son los mismos en todas las herramientas.</p>
 </blockquote>
 <blockquote>
-<p><strong>Dos estilos de arranque:</strong> <code>/opsx-propose</code> es el <strong>modo copiloto</strong> (la IA redacta la primera versión de proposal/spec/design/tasks y tú apruebas). <code>/opsx-new-change</code> es el <strong>modo artesano</strong> (crea solo el esqueleto y lo llenas tú; la IA refina después con <code>/opsx-update-change</code>). Ambos convergen en la misma Puerta 1 — detalles en <a href="./02-sdd-flutter-supabase.md#dos-modos-de-crear-el-cambio">02-sdd-flutter-supabase.md §Dos modos de crear el cambio</a>.</p>
+<p><strong>Dos estilos de arranque:</strong> <code>openspec-propose</code> es el <strong>modo copiloto</strong> (la IA redacta la primera versión de proposal/spec/design/tasks y tú apruebas). <code>openspec-new-change</code> es el <strong>modo artesano</strong> (crea solo el esqueleto y lo llenas tú; la IA refina después con <code>openspec-update-change</code>). Ambos convergen en la misma Puerta 1 — detalles en <a href="./02-sdd-flutter-supabase.md#dos-modos-de-crear-el-cambio">02-sdd-flutter-supabase.md §Dos modos de crear el cambio</a>.</p>
 </blockquote>
 <hr />
 <h2 id="comandos-de-la-cli">Comandos de la CLI</h2>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> init          <span class="co"># Inicializa OpenSpec en el proyecto (interactivo)</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> update        <span class="co"># Regenera archivos de agentes tras actualizar la CLI</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> list          <span class="co"># Lista cambios activos</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> list <span class="at">--specs</span>  <span class="co"># Lista specs archivadas</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> view          <span class="co"># Dashboard interactivo de cambios y specs</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> change <span class="op">&lt;</span>id<span class="op">&gt;</span>   <span class="co"># Muestra un cambio concreto</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> archive <span class="op">&lt;</span>id<span class="op">&gt;</span>  <span class="co"># Archiva un cambio (equivale al slash command)</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> spec <span class="op">&lt;</span>cap<span class="op">&gt;</span>    <span class="co"># Inspecciona una capacidad archivada</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> validate      <span class="co"># Valida formato de changes/specs contra los schemas</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> doctor        <span class="co"># Diagnóstico de la instalación local</span></span></code></pre></div>
-<p>La validación (<code>openspec validate</code>) comprueba que cada spec tenga secciones <code>WHY</code>/<code>Purpose</code> y requisitos en formato delta correcto — úsala antes de cada puerta.</p>
+<h3 id="set-up">Set up</h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openspec init</code></td>
+<td>Inicializa OpenSpec en el proyecto (interactivo)</td>
+</tr>
+<tr>
+<td><code>openspec update</code></td>
+<td>Actualiza archivos de agentes instalados</td>
+</tr>
+<tr>
+<td><code>openspec config</code></td>
+<td>Ver y cambiar configuración global</td>
+</tr>
+</tbody>
+</table>
+<h3 id="changes-y-specs">Changes y specs</h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openspec list</code></td>
+<td>Lista cambios activos</td>
+</tr>
+<tr>
+<td><code>openspec list --specs</code></td>
+<td>Lista specs archivadas</td>
+</tr>
+<tr>
+<td><code>openspec show &lt;item&gt;</code></td>
+<td>Muestra un cambio o spec (reemplaza a <code>openspec change</code> y <code>openspec spec</code>)</td>
+</tr>
+<tr>
+<td><code>openspec show &lt;item&gt; --diff</code></td>
+<td>Muestra el cambio con diffs de requisitos contra specs principales</td>
+</tr>
+<tr>
+<td><code>openspec view</code></td>
+<td>Dashboard de un pantalla de cambios y specs</td>
+</tr>
+<tr>
+<td><code>openspec validate</code></td>
+<td>Valida formato de changes/specs contra los schemas</td>
+</tr>
+<tr>
+<td><code>openspec validate --all</code></td>
+<td>Valida todos los changes y specs</td>
+</tr>
+<tr>
+<td><code>openspec archive &lt;id&gt;</code></td>
+<td>Archiva un cambio (equivale al slash command)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="workflows-y-schemas">Workflows y schemas</h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openspec new change &lt;name&gt;</code></td>
+<td>Crea un nuevo cambio con metadata YAML</td>
+</tr>
+<tr>
+<td><code>openspec status --change &lt;id&gt;</code></td>
+<td>Checklist de progreso de artifacts de un cambio</td>
+</tr>
+<tr>
+<td><code>openspec instructions &lt;artifact&gt;</code></td>
+<td>Instrucciones detalladas para crear un artifact</td>
+</tr>
+<tr>
+<td><code>openspec templates</code></td>
+<td>Rutas de templates de un schema</td>
+</tr>
+<tr>
+<td><code>openspec schemas</code></td>
+<td>Lista schemas de workflow disponibles</td>
+</tr>
+<tr>
+<td><code>openspec schema fork &lt;src&gt; &lt;name&gt;</code></td>
+<td>Forkiar un schema existente al proyecto (experimental)</td>
+</tr>
+<tr>
+<td><code>openspec schema init &lt;name&gt;</code></td>
+<td>Crear un schema desde cero (experimental)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utilidades">Utilidades</h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openspec doctor</code></td>
+<td>Diagnóstico de la instalación local</td>
+</tr>
+<tr>
+<td><code>openspec feedback</code></td>
+<td>Enviar feedback sobre OpenSpec</td>
+</tr>
+<tr>
+<td><code>openspec completion</code></td>
+<td>Instalar/generar completions de shell</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Comandos deprecated:</strong> <code>openspec change &lt;id&gt;</code> y <code>openspec spec &lt;cap&gt;</code> funcionan pero muestran un warning. Usa <code>openspec show</code> en su lugar.</p>
+</blockquote>
+<p>La validación (<code>openspec validate</code>) comprueba que cada spec tenga secciones <code>WHY</code>/<code>Purpose</code> y requisitos en formato delta correcto — úsala antes de cada puerta. Nuevos flags: <code>--archived</code> (verificar archivados), <code>--strict</code> (warnings como errores), <code>--report findings</code> (solo items con issues).</p>
+<hr />
+<h2 id="project-configuration-configyaml">Project Configuration (config.yaml)</h2>
+<p><code>openspec/config.yaml</code> le dice a los workflows cómo planificar cambios. Tres campos principales:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># openspec/config.yaml</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">schema</span><span class="kw">:</span><span class="at"> spec-driven</span><span class="co">              # Schema a usar (default: spec-driven)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">context</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  Tech stack: Flutter 3.x + Dart, Clean Architecture, Supabase</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  Usamos BLoC/Cubit para estado, GetIt para DI, GoRouter para routing</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  Commits convencionales: feat(x):, fix(x):, refactor(x):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="fu">rules</span><span class="kw">:</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">proposal</span><span class="kw">:</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> Mantener proposals bajo 500 palabras</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> Cada tarea UI incluye widget test</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> Cada tarea de datos incluye integration test contra migración real</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="fu">operations</span><span class="kw">:</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">apply</span><span class="kw">:</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">guidance</span><span class="kw">:</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: andamiaje&#39;: NO escribas los bodies. Genera solo scaffold (throw UnimplementedError() + TODO citando REQ-xxx), NO marques la casilla - [x], y pausa para que el desarrollador complete.&quot;</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: completo&#39;: implementa la tarea al 100% contra la spec y márcala - [x].&quot;</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">archive</span><span class="kw">:</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">guidance</span><span class="kw">:</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> Resumir qué se entregó antes de archivar</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Qué hace</th>
+<th>Injectado en</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context</code></td>
+<td>Contexto que el agente recibe siempre</td>
+<td>Todo: cada artifact, apply, archive</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td>Reglas extra para un artifact específico</td>
+<td>Solo la creación de ese artifact</td>
+</tr>
+<tr>
+<td><code>operations</code></td>
+<td>Guía para apply y archive</td>
+<td>Solo apply y archive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El idioma de output</strong> se cambia con una línea en context: <code>Write all artifacts in Spanish.</code></p>
+<blockquote>
+<p><strong>Por qué funciona:</strong> config.yaml vive en tu proyecto (<code>openspec/config.yaml</code>, junto a <code>lib/</code>), no es parte de la herramienta. El CLI lo lee en tiempo de ejecución (<code>openspec instructions</code>) y lo inyecta en el prompt del agente.</p>
+</blockquote>
+<hr />
+<h2 id="schemas-personalizados">Schemas personalizados</h2>
+<p>Un schema define qué artifacts produce un cambio, en qué orden, desde qué templates. El default es <code>spec-driven</code>:</p>
+<pre><code>proposal → specs → design → tasks</code></pre>
+<h3 id="forkiar-un-schema-existente">Forkiar un schema existente</h3>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Copiar spec-driven al proyecto</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> schema fork spec-driven mi-flow</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Editar openspec/schemas/mi-flow/schema.yaml y templates/</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Apuntar el proyecto al schema forked:</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># openspec/config.yaml → schema: mi-flow</span></span></code></pre></div>
+<h3 id="crear-desde-cero">Crear desde cero</h3>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> schema init lite <span class="at">--description</span> <span class="st">&quot;Flujo ligero&quot;</span> <span class="at">--artifacts</span> proposal,tasks</span></code></pre></div>
+<h3 id="validar-un-schema">Validar un schema</h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> schema validate mi-flow</span></code></pre></div>
+<p>Los schemas viven en <code>openspec/schemas/</code> (committeados con el repo) o en <code>~/.local/share/openspec/schemas/</code> (globales por máquina). Los schemas del proyecto ganan sobre los built-in.</p>
+<hr />
+<h2 id="multi-repo-beta">Multi-repo (beta)</h2>
+<p>Para proyectos que planifican features que span múltiples repos:</p>
+<h3 id="stores">Stores</h3>
+<p>Un store es un repo OpenSpec standalone que comparten varios repos de código:</p>
+<pre><code>team-plans/          (store: OpenSpec en su propio repo)
+├── openspec/
+│   ├── specs/
+│   └── changes/
+web-app/             (code repo → connecta al store)
+api-server/          (code repo → connecta al store)</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear un store (una persona, una vez)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> store setup</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Unirse al store (cada teammate)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:acme/team-plans.git ~/openspec/team-plans</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> store register ~/openspec/team-plans</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Trabajar contra el store</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> status <span class="at">--store</span> team-plans</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> new change add-login <span class="at">--store</span> team-plans</span></code></pre></div>
+<h3 id="worksets">Worksets</h3>
+<p>Abrir el store y los repos en una sola ventana del editor:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> workset create platform <span class="dt">\</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--member</span> ~/src/web-app <span class="dt">\</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--member</span> ~/openspec/team-plans <span class="dt">\</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--tool</span> code</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> workset open platform</span></code></pre></div>
+<hr />
+<h2 id="cloud-agent-early-access">Cloud Agent (early access)</h2>
+<p>Capa always-on para equipos que usan OpenSpec en uno o más repos. Detecta <strong>spec drift</strong>: cuando un PR cambia el comportamiento del producto sin actualizar la spec.</p>
+<p><strong>Qué hace:</strong></p>
+<ul>
+<li>Compara PRs con las requirements y cita las líneas exactas cuando discrepan</li>
+<li>Abre PRs correctivos automáticamente</li>
+<li>Escanea repos conectados diariamente</li>
+</ul>
+<p><strong>Ejemplo de drift detectado:</strong></p>
+<pre><code>spec drift found — PR check
+
+Customers lose access when they cancel
+  Requirement: openspec/specs/billing/spec.md:64
+    &quot;Canceled subscriptions remain active through current_period_end&quot;
+  Code: src/billing/cancel-subscription.ts:37
+    &quot;cancellation sets status to canceled immediately&quot;
+
+Next: Keep access active through current_period_end, or revise requirement</code></pre>
+<blockquote>
+<p>Early access gratuito para equipos. Configuración &lt;15 min. Más info en <a href="https://openspec.dev/blog/openspec-cloud-agents">openspec.dev/blog/openspec-cloud-agents</a>.</p>
+</blockquote>
 <hr />
 <h2 id="ejemplo-completo-login-con-supabase-auth">Ejemplo completo: Login con Supabase Auth</h2>
 <h3 id="contexto">Contexto</h3>
@@ -1421,74 +1748,74 @@ Tú: Sí, hagámoslo</code></pre>
 <pre><code>/opsx-propose add-supabase-auth</code></pre>
 <p><strong>Lo que genera:</strong></p>
 <p><code>openspec/changes/add-supabase-auth/proposal.md</code>:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Proposal: Add Supabase Authentication</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>Problem</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>Users need to authenticate to access protected features.</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>Solution</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>Integrate Supabase Auth with email/password login, following Clean Architecture.</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>Impact</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>New feature: <span class="in">`auth`</span> under <span class="in">`lib/features/`</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dependencies: supabase_flutter (already in pubspec)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No breaking changes to existing features</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Proposal: Add Supabase Authentication</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>Problem</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>Users need to authenticate to access protected features.</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>Solution</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>Integrate Supabase Auth with email/password login, following Clean Architecture.</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>Impact</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>New feature: <span class="in">`auth`</span> under <span class="in">`lib/features/`</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dependencies: supabase_flutter (already in pubspec)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No breaking changes to existing features</span></code></pre></div>
 <p><code>openspec/changes/add-supabase-auth/specs/auth-login/spec.md</code>:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ADDED Requirements</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Email/password login</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>The system SHALL authenticate users via email and password using Supabase Auth.</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Successful login</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a registered user with valid credentials</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system returns a User entity and navigates to the home screen</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Invalid credentials</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a user with wrong password</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system displays &quot;Credenciales inválidas&quot; and stays on the login screen</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Network error</span></span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN no internet connection</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system displays &quot;Error de conexión&quot; with a retry option</span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Session persistence</span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>The system SHALL persist the user session across app restarts.</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: App restart with valid session</span></span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a user previously logged in</span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the app restarts</span>
-<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the user is redirected to the home screen without re-authenticating</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>ADDED Requirements</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Email/password login</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>The system SHALL authenticate users via email and password using Supabase Auth.</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Successful login</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a registered user with valid credentials</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system returns a User entity and navigates to the home screen</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Invalid credentials</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a user with wrong password</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system displays &quot;Credenciales inválidas&quot; and stays on the login screen</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: Network error</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN no internet connection</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the user submits the login form</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the system displays &quot;Error de conexión&quot; with a retry option</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: Session persistence</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>The system SHALL persist the user session across app restarts.</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Scenario: App restart with valid session</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GIVEN a user previously logged in</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WHEN the app restarts</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>THEN the user is redirected to the home screen without re-authenticating</span></code></pre></div>
 <p><code>openspec/changes/add-supabase-auth/design.md</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Design: Supabase Auth</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>Architecture</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Follow Clean Architecture layers:</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Domain: User entity, AuthRepository interface, LoginUseCase</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Data: AuthDataSource (Supabase), AuthRepositoryImpl, UserModel</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Presentation: AuthCubit, AuthState, LoginPage</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>Decisions</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use Supabase GoTrue client for auth operations</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Store session via Supabase&#39;s built-in persistence</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Emit auth state changes via Stream in Cubit</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Design: Supabase Auth</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>Architecture</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>Follow Clean Architecture layers:</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Domain: User entity, AuthRepository interface, LoginUseCase</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Data: AuthDataSource (Supabase), AuthRepositoryImpl, UserModel</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Presentation: AuthCubit, AuthState, LoginPage</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>Decisions</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use Supabase GoTrue client for auth operations</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Store session via Supabase&#39;s built-in persistence</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Emit auth state changes via Stream in Cubit</span></code></pre></div>
 <p><code>openspec/changes/add-supabase-auth/tasks.md</code>:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Tasks</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 1. Create User entity (domain/entities/user.dart)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 2. Create AuthRepository interface (domain/repositories/auth_repository.dart)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 3. Create LoginUseCase (domain/usecases/login.dart)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 4. Create UserModel with snake_case mapping (data/models/user_model.dart)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 5. Create AuthRemoteDataSource (data/datasources/auth_remote_datasource.dart)</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 6. Create AuthRepositoryImpl (data/repositories/auth_repository_impl.dart)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 7. Create AuthCubit + AuthState (presentation/cubit/)</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 8. Create LoginPage with form pattern (presentation/pages/)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 9. Register in DI (service_locator.dart)</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 10. Add route (app_router.dart)</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 11. Write unit tests for LoginUseCase</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 12. Write widget test for LoginPage</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Tasks</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 1. Create User entity (domain/entities/user.dart)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 2. Create AuthRepository interface (domain/repositories/auth_repository.dart)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 3. Create LoginUseCase (domain/usecases/login.dart)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 4. Create UserModel with snake_case mapping (data/models/user_model.dart)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 5. Create AuthRemoteDataSource (data/datasources/auth_remote_datasource.dart)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 6. Create AuthRepositoryImpl (data/repositories/auth_repository_impl.dart)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 7. Create AuthCubit + AuthState (presentation/cubit/)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 8. Create LoginPage with form pattern (presentation/pages/)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 9. Register in DI (service_locator.dart)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 10. Add route (app_router.dart)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 11. Write unit tests for LoginUseCase</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> 12. Write widget test for LoginPage</span></code></pre></div>
 <h3 id="paso-3-revisar">Paso 3: Revisar</h3>
 <p>Revisas cada artefacto. Ajustas si algo no está bien (ej: agregar "recordar sesión" al spec).</p>
 <h3 id="paso-4-ejecutar-1">Paso 4: Ejecutar</h3>
@@ -1531,7 +1858,7 @@ Tú: Sí, hagámoslo</code></pre>
 </tr>
 <tr>
 <td>Agentes</td>
-<td>30+ soportados</td>
+<td>40+ soportados</td>
 <td>~30 soportados</td>
 <td>Solo Claude</td>
 </tr>
@@ -1548,6 +1875,24 @@ Tú: Sí, hagámoslo</code></pre>
 <td>No (en el IDE)</td>
 </tr>
 <tr>
+<td>Schemas custom</td>
+<td>Sí (fork/init)</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Multi-repo</td>
+<td>Sí (stores, beta)</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Cloud/Drift</td>
+<td>Sí (Cloud Agent, early access)</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
 <td>Coste</td>
 <td>Gratis</td>
 <td>Gratis</td>
@@ -1555,22 +1900,23 @@ Tú: Sí, hagámoslo</code></pre>
 </tr>
 </tbody>
 </table>
-<p><strong>Conclusión:</strong> OpenSpec es la opción más flexible y ligera. Spec Kit es más estructurado pero más pesado. Kiro es potente pero te encierra en su IDE.</p>
+<p><strong>Conclusión:</strong> OpenSpec es la opción más flexible, con más features (schemas, multi-repo, cloud) y la mayor comunidad. Spec Kit es más estructurado pero más pesado. Kiro es potente pero te encierra en su IDE.</p>
 <hr />
 <h2 id="actualización">Actualización</h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar OpenSpec</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> @fission-ai/openspec@latest</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Regenerar instrucciones de agentes en el proyecto</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> update</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actualizar OpenSpec (ofrece upgrade de CLI si hay nueva versión)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> update</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># O forzar reinstall</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> @fission-ai/openspec@latest</span></code></pre></div>
+<p><code>openspec update</code> detecta la versión del CLI y ofrece actualizar. Después refresca los archivos de skills y commands instalados en el proyecto. Nunca toca <code>openspec/schemas/</code> (tus forks se preservan).</p>
 <hr />
 <h2 id="configuración-de-telemetría">Configuración de telemetría</h2>
 <p>OpenSpec recopila stats anónimas (solo comandos, no contenido). Para desactivar:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: config global</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> config set telemetry.enabled false</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: variable de entorno</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">OPENSPEC_TELEMETRY</span><span class="op">=</span>0</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: config global</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> config set telemetry.enabled false</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: variable de entorno</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">OPENSPEC_TELEMETRY</span><span class="op">=</span>0</span></code></pre></div>
 <hr />
 <h2 id="errores-comunes">Errores comunes</h2>
 <table>
@@ -1602,13 +1948,74 @@ Tú: Sí, hagámoslo</code></pre>
 <td>No se ejecutó <code>/opsx-propose</code> primero</td>
 <td>Ejecutar propose antes de apply</td>
 </tr>
+<tr>
+<td><code>No OpenSpec root found</code></td>
+<td>Fuera de un proyecto o sin <code>--store</code></td>
+<td>Navegar al directorio del proyecto o pasar <code>--store &lt;id&gt;</code></td>
+</tr>
+<tr>
+<td><code>Schema not found</code></td>
+<td>Schema configurado no existe</td>
+<td><code>openspec schemas</code> para ver disponibles, o <code>openspec schema fork spec-driven &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>Store not registered</code></td>
+<td>Store no registrado en la máquina</td>
+<td><code>openspec store register &lt;path&gt;</code></td>
+</tr>
 </tbody>
 </table>
+<hr />
+<h2 id="glosario-rápido">Glosario rápido</h2>
+<table>
+<thead>
+<tr>
+<th>Término</th>
+<th>Definición</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Artifact</strong></td>
+<td>Documento de planificación: proposal.md, delta specs, design.md, tasks.md</td>
+</tr>
+<tr>
+<td><strong>Capability</strong></td>
+<td>Área de comportamiento del sistema. Cada una tiene un spec en <code>openspec/specs/&lt;cap&gt;/spec.md</code></td>
+</tr>
+<tr>
+<td><strong>Change proposal</strong></td>
+<td>Unidad de trabajo: carpeta bajo <code>openspec/changes/&lt;nombre&gt;/</code></td>
+</tr>
+<tr>
+<td><strong>Delta spec</strong></td>
+<td>Spec dentro de un cambio que describe solo lo que cambia (ADDED/MODIFIED/REMOVED/RENAMED)</td>
+</tr>
+<tr>
+<td><strong>Main specs</strong></td>
+<td>El árbol <code>openspec/specs/</code>: comportamiento actual acordado del sistema</td>
+</tr>
+<tr>
+<td><strong>Schema</strong></td>
+<td>Definición de qué artifacts produce un cambio y en qué orden</td>
+</tr>
+<tr>
+<td><strong>Store</strong></td>
+<td>Repo OpenSpec standalone para planificación multi-repo</td>
+</tr>
+<tr>
+<td><strong>Workset</strong></td>
+<td>Lista guardada de carpetas para abrir juntas en un editor</td>
+</tr>
+</tbody>
+</table>
+<p>Glosario completo: <a href="https://openspec.dev/docs/glossary">openspec.dev/docs/glossary</a></p>
 <hr />
 <h2 id="referencias">Referencias</h2>
 <ul>
 <li><strong>Sitio web:</strong> <a href="https://openspec.dev">openspec.dev</a></li>
-<li><strong>GitHub:</strong> <a href="https://github.com/Fission-AI/OpenSpec">github.com/Fission-AI/OpenSpec</a></li>
+<li><strong>Docs:</strong> <a href="https://openspec.dev/docs">openspec.dev/docs</a></li>
+<li><strong>GitHub:</strong> <a href="https://github.com/Fission-AI/OpenSpec">github.com/Fission-AI/OpenSpec</a> (66.9k stars)</li>
 <li><strong>Discord:</strong> <a href="https://discord.gg/YctCnvvshC">discord.gg/YctCnvvshC</a></li>
 <li><strong>Metodología aplicada a tu stack:</strong> <a href="./02-sdd-flutter-supabase.md">02-sdd-flutter-supabase.md</a></li>
 <li><strong>Plantilla de cambio:</strong> <a href="./04-plantilla-cambio-openspec.md">04-plantilla-cambio-openspec.md</a></li>
@@ -1827,14 +2234,45 @@ Tú: Sí, hagámoslo</code></pre>
 <span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----|----------|------|---------|</span></span>
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> REQ-001 <span class="pp">|</span> 1.1 <span class="pp">|</span> entity_test <span class="pp">|</span> abc123 <span class="pp">|</span></span></code></pre></div>
 <hr />
-<h2 id="configuración--que-opsx-apply-change-respete-el-modo">Configuración — que <code>/opsx-apply-change</code> respete el modo</h2>
-<p>El modo se declara <strong>por cambio</strong> en la primera línea de <code>tasks.md</code> (véase arriba). Para que el agente de <code>/opsx-apply-change</code> —el único motor de implementación— lo cumpla de forma fiable, añade una vez al <code>openspec/config.yaml</code> de tu proyecto:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># openspec/config.yaml — se añade una sola vez; el interruptor por cambio es la línea &quot;Modo&quot; de tasks.md</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">operations</span><span class="kw">:</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">apply</span><span class="kw">:</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">guidance</span><span class="kw">:</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: andamiaje&#39;: NO escribas los bodies. Por cada tarea genera solo el scaffolding (throw UnimplementedError() + TODO citando REQ-xxx), NO marques la casilla - [x], y pausa para que el desarrollador complete e implemente.&quot;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: completo&#39;: implementa la tarea al 100% contra la spec (caminos de éxito y error de los escenarios) y márcala - [x].&quot;</span></span></code></pre></div>
+<h2 id="project-configuration-configyaml">Project Configuration (config.yaml)</h2>
+<p><code>openspec/config.yaml</code> le dice a los workflows cómo planificar cambios. Tres campos principales:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Qué hace</th>
+<th>Injectado en</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context</code></td>
+<td>Contexto que el agente recibe siempre</td>
+<td>Todo: cada artifact, apply, archive</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td>Reglas extra para un artifact específico</td>
+<td>Solo la creación de ese artifact</td>
+</tr>
+<tr>
+<td><code>operations</code></td>
+<td>Guía para apply y archive</td>
+<td>Solo apply y archive</td>
+</tr>
+</tbody>
+</table>
+<p>Para que <code>/opsx-apply-change</code> respete el modo de implementación, añade una vez al <code>openspec/config.yaml</code> de tu proyecto:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># openspec/config.yaml</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">schema</span><span class="kw">:</span><span class="at"> spec-driven</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">context</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  Tech stack: Flutter 3.x + Dart, Clean Architecture, Supabase</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">operations</span><span class="kw">:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">apply</span><span class="kw">:</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">guidance</span><span class="kw">:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: andamiaje&#39;: NO escribas los bodies. Por cada tarea genera solo el scaffolding (throw UnimplementedError() + TODO citando REQ-xxx), NO marques la casilla - [x], y pausa para que el desarrollador complete e implemente.&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;Si tasks.md declara &#39;Modo: completo&#39;: implementa la tarea al 100% contra la spec (caminos de éxito y error de los escenarios) y márcala - [x].&quot;</span></span></code></pre></div>
 <blockquote>
 <p><strong>Por qué funciona:</strong> ese archivo vive en tu proyecto (<code>openspec/config.yaml</code>, junto a <code>lib/</code>), no es parte de la herramienta. El CLI lo lee en tiempo de ejecución (<code>openspec instructions apply</code>) y lo inyecta en el prompt del agente como <code>operationGuidance</code>, que el flujo built-in ordena leer y seguir. El interruptor por cambio sigue siendo la línea <code>Modo</code> de <code>tasks.md</code> — el <code>config.yaml</code> se configura una sola vez.</p>
 </blockquote>
@@ -1878,6 +2316,8 @@ Tú: Sí, hagámoslo</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> validate            <span class="co"># formato OK</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ... implementar (Fase 4) ...</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">openspec</span> archive add-<span class="op">&lt;</span>feature<span class="op">&gt;</span></span></code></pre></div>
+<p><strong>Tip:</strong> para cambios sin specs (solo design + tasks, ej: integrar un paquete), agrega <code>skip_specs: true</code> al <code>.openspec.yaml</code> de la raíz. Esto indica al agente que no genere artifacts de specs para ese cambio.</p>
+<p><strong>Tip:</strong> para verificar archivados, usa <code>openspec validate --archived</code>. Para revisar diffs de requisitos antes de archivar, <code>openspec show &lt;cambio&gt; --diff</code>.</p>
 <p>Ejemplos reales completados: <a href="./ejemplos-cambios/"><code>ejemplos-cambios/</code></a></p>
 </div></div>
 <div class="chapter"><div class="chapter-head"><span class="num-chip">Referencia rapida</span><div class="kick">Parte 1 · Nucleo del modulo</div><h2>05 - Referencia Rápida</h2></div><div class="article"><blockquote>
@@ -2208,7 +2648,7 @@ Requisitos → Diseño   Diseño → Tareas       Tareas → Implementación</co
 <li><strong>No</strong> → faltan supuestos implícitos → actualizar spec</li>
 </ul>
 <hr />
-<h2 id="openspec-comandos-rápidos-cli-v160-opencode">OpenSpec: comandos rápidos (CLI v1.6.0, OpenCode)</h2>
+<h2 id="openspec-comandos-rápidos-cli-v1110-opencode">OpenSpec: comandos rápidos (CLI v1.11.0, OpenCode)</h2>
 <table>
 <thead>
 <tr>
@@ -2226,12 +2666,36 @@ Requisitos → Diseño   Diseño → Tareas       Tareas → Implementación</co
 <td>Inicializar en el proyecto</td>
 </tr>
 <tr>
+<td><code>openspec update</code></td>
+<td>Refrescar skills y commands instalados</td>
+</tr>
+<tr>
+<td><code>openspec list</code></td>
+<td>Listar cambios activos</td>
+</tr>
+<tr>
+<td><code>openspec show &lt;item&gt;</code></td>
+<td>Ver un cambio o spec (reemplaza <code>change</code> y <code>spec</code> deprecated)</td>
+</tr>
+<tr>
+<td><code>openspec show &lt;item&gt; --diff</code></td>
+<td>Ver diffs de requisitos contra specs principales</td>
+</tr>
+<tr>
+<td><code>openspec status --change &lt;id&gt;</code></td>
+<td>Checklist de progreso de artifacts</td>
+</tr>
+<tr>
 <td><code>openspec validate</code></td>
 <td>Validar formato de changes/specs</td>
 </tr>
 <tr>
+<td><code>openspec schemas</code></td>
+<td>Listar schemas de workflow disponibles</td>
+</tr>
+<tr>
 <td><code>/opsx-explore</code></td>
-<td>Explorar opciones</td>
+<td>Explorar opciones (no crea archivos)</td>
 </tr>
 <tr>
 <td><code>/opsx-propose &lt;nombre&gt;</code></td>
@@ -2243,19 +2707,19 @@ Requisitos → Diseño   Diseño → Tareas       Tareas → Implementación</co
 </tr>
 <tr>
 <td><code>/opsx-verify-change</code></td>
-<td>Verificar cumplimiento de specs</td>
+<td>Verificar cumplimiento de specs (solo reporte)</td>
 </tr>
 <tr>
 <td><code>/opsx-archive-change</code></td>
-<td>Archivar cambio</td>
-</tr>
-<tr>
-<td><code>openspec update</code></td>
-<td>Regenerar instrucciones de agentes</td>
+<td>Archivar cambio y consolidar specs</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>Deprecated:</strong> <code>openspec change &lt;id&gt;</code> y <code>openspec spec &lt;cap&gt;</code> → usa <code>openspec show</code> en su lugar.</p>
+</blockquote>
 <p>Detalle completo: <a href="./03-openspec-guia-practica.md">03-openspec-guia-practica.md</a></p>
+<p><strong>Glosario oficial:</strong> <a href="https://openspec.dev/docs/glossary">openspec.dev/docs/glossary</a></p>
 <hr />
 <h2 id="plantilla-de-spec-copia-y-pega">Plantilla de spec (copia y pega)</h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">### Requirement: [Nombre] [Componente]</span></span>
