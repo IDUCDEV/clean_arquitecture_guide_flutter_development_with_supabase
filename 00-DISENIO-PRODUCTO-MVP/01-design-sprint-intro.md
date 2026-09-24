@@ -2,7 +2,7 @@
 
 ## ¿Qué es un Design Sprint?
 
-El **Design Sprint** es una metodología creada por Google para responder preguntas críticas de negocio a través del diseño, prototipado y testing con usuarios reales en **5 días**. Fue desarrollada por Jake Knapp en Google Ventures y hoy es mantenida como un recurso open-source por Google: [designsprintkit.withgoogle.com](https://designsprintkit.withgoogle.com/methodology).
+El **Design Sprint** es una metodología creada por Google para responder preguntas críticas de negocio a través del diseño, prototipado y testing con usuarios reales en **5 días**. Fue desarrollada por Jake Knapp en Google Ventures (GV) y hoy está documentada de forma oficial en [gv.com/sprint](https://www.gv.com/sprint/). El antiguo Design Sprint Kit de Google (con el que trabajó este tema durante años) sigue accesible como archivo histórico, pero ya no recibe soporte activo.
 
 No es una metodología más. Es el estándar que Google usa internamente para validar productos antes de invertir en desarrollo.
 

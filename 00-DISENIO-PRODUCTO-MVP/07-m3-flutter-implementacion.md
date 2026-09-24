@@ -4,20 +4,20 @@
 
 ---
 
-Flutter implementa M3 de forma nativa. No necesitas paquetes adicionales. Solo activarlo.
+Flutter implementa M3 de forma nativa. No necesitas paquetes adicionales.
 
-## 1. Activar M3
+> **Importante (Flutter 3.16+):** desde la versión 3.16, **Material 3 es el valor por defecto** en `ThemeData`. Ya no es necesario (ni recomendado) activarlo con `useMaterial3: true`, pues ese flag está marcado para deprecación. Antes de la 3.16 sí era obligatorio; si migras un proyecto antiguo que aún usa Material 2, puedes desactivar M3 temporalmente con `useMaterial3: false` mientras completas la migración.
+
+## 1. Configurar el tema M3
 
 ```dart
 MaterialApp(
   theme: ThemeData(
-    useMaterial3: true, // ← Activa M3
     colorScheme: ColorScheme.fromSeed(
       seedColor: Color(0xFF6750A4), // seed color
     ),
   ),
   darkTheme: ThemeData(
-    useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: Color(0xFF6750A4),
       brightness: Brightness.dark,
@@ -27,8 +27,8 @@ MaterialApp(
 )
 ```
 
-Con `useMaterial3: true`:
-- Los componentes M3 cambian sus defaults (NavigationBar, Cards, Buttons, etc.)
+Con M3 activo (default desde Flutter 3.16):
+- Los componentes usan los defaults M3 (NavigationBar, Cards, Buttons, etc.)
 - Se activa la escala tipográfica M3
 - Las formas cambian a las redondeadas de M3
 
@@ -143,7 +143,7 @@ ThemeData(
 
 ## 5. Componentes M3
 
-Una vez activado `useMaterial3`, los widgets de Flutter ya usan M3:
+Una vez configurado el `ColorScheme` (con M3 como default), los widgets de Flutter ya usan M3:
 
 | Widget | Cambio con M3 |
 |---|---|
@@ -199,7 +199,6 @@ Con `ColorScheme.fromSeed` y `Brightness.dark`, obtienes dark mode automático:
 
 ```dart
 ThemeData(
-  useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(
     seedColor: brandColor,
     brightness: Brightness.dark,
@@ -225,7 +224,9 @@ Esto es exactamente lo que incluye el template de este módulo.
 
 ## Checklist de implementación M3
 
-- [ ] `useMaterial3: true` activado
+> M3 es el default desde Flutter 3.16. No uses `useMaterial3: true` (deprecated).
+> Solo usa `useMaterial3: false` si estás migrando un proyecto con Material 2.
+
 - [ ] `ColorScheme.fromSeed` con seed color de marca
 - [ ] Light + dark scheme definidos
 - [ ] `textTheme` personalizado (fuente de marca si aplica)

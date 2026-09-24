@@ -4,8 +4,9 @@
 
 | Recurso | Tipo | Enlace |
 |---|---|---|
-| Google Design Sprint Kit (oficial) | Guía + métodos | https://designsprintkit.withgoogle.com/methodology |
-| GV Design Sprint (Jake Knapp) | Libro | https://www.gv.com/sprint/ |
+| GV Design Sprint (Jake Knapp) — guía oficial del proceso | Guía + métodos | https://www.gv.com/sprint/ |
+| The Design Sprint (libro) | Libro | https://www.gv.com/sprint/ |
+| Google Design Sprint Kit (histórico, sin soporte activo) | Guía + métodos archivada | https://designsprintkit.withgoogle.com/methodology |
 | The Design Sprint (videos) | Videos | https://www.youtube.com/playlist?list=PLI5pVb4v-8nPgI7wHmR0y3OcE1G5r5z0y |
 
 ## Material Design 3
@@ -16,7 +17,7 @@
 | Foundations (color, typography, shape) | Guía | https://m3.material.io/foundations |
 | Material Theme Builder | Herramienta | https://m3.material.io/theme-builder |
 | Material 3 Figma Kit | Kit Figma | https://www.figma.com/community/file/1035203688168086460 |
-| Material A-Z | Glosario | https://m3.material.io/material-az |
+| Componentes M3 (catálogo A–Z) | Glosario | https://m3.material.io/components |
 
 ## Flutter + M3
 

@@ -4,7 +4,7 @@
 
 ---
 
-Material Design 3 (M3) es el sistema de diseño open-source de Google, también conocido como **Material You**. Es la evolución de Material Design y el que Flutter usa de forma nativa desde la versión 3.7.
+Material Design 3 (M3) es el sistema de diseño de Google, también conocido como **Material You**. Es la evolución de Material Design y **el que Flutter usa por defecto desde la versión 3.16** (antes de esa versión era opcional activarlo).
 
 M3 se basa en 3 subsistemas principales:
 

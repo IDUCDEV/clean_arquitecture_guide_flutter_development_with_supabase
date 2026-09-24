@@ -138,7 +138,7 @@ Pantalla 4: Confirmación → "Listo, llegas a las 5pm"</pre>
     <h2>Material Design 3 — Fundamentos</h2>
     <span class="meta">Color · Tipografía · Formas</span>
   </div>
-  <p>M3 (Material You) es el sistema de diseño de Google y el que Flutter usa nativamente desde 3.7. Tres subsistemas:</p>
+  <p>M3 (Material You) es el sistema de diseño de Google y el que Flutter usa por defecto desde la versión 3.16. Tres subsistemas:</p>
   <pre>M3 Theme
 ├── ColorScheme (color)
 ├── TextTheme (tipografía)
@@ -266,19 +266,17 @@ Pantalla 4: Confirmación → "Listo, llegas a las 5pm"</pre>
     <span class="meta">Sin paquetes extra · nativo</span>
   </div>
 
-  <h3>1 · Activar M3 + seed color</h3>
+  <h3>1 · Theme M3 + seed color</h3>
   <pre>MaterialApp(
   theme: ThemeData(
-    useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF6750A4)),
   ),
   darkTheme: ThemeData( // dark automático con Brightness.dark
-    useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: Color(0xFF6750A4), brightness: Brightness.dark),
   ),
   themeMode: ThemeMode.system,
-)</pre>
+) // M3 es default desde Flutter 3.16: no usar useMaterial3</pre>
 
   <h3>2 · Personalización</h3>
   <ul class="checklist">
@@ -373,8 +371,8 @@ Pantalla 4: Confirmación → "Listo, llegas a las 5pm"</pre>
   <table>
     <thead><tr><th>Recurso</th><th>Tipo</th></tr></thead>
     <tbody>
-      <tr><td>Google Design Sprint Kit</td><td>Guía + métodos · designsprintkit.withgoogle.com</td></tr>
-      <tr><td>GV Design Sprint (Jake Knapp)</td><td>Libro · gv.com/sprint</td></tr>
+      <tr><td>GV Design Sprint (Jake Knapp)</td><td>Guía oficial · gv.com/sprint</td></tr>
+      <tr><td>Google Design Sprint Kit</td><td>Histórico, sin soporte activo · designsprintkit.withgoogle.com</td></tr>
       <tr><td>Material Design 3 (m3.material.io)</td><td>Sistema completo + Material Theme Builder</td></tr>
       <tr><td>Material 3 Figma Kit</td><td>Kit Figma oficial</td></tr>
       <tr><td>Material Design para Flutter</td><td>Guía oficial · docs.flutter.dev/ui/design/material</td></tr>

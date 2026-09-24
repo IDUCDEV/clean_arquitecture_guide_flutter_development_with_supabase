@@ -27,7 +27,7 @@ El resultado: un **MVP validado con usuarios** y **diseñado con el mismo sistem
 | `04-m3-fundamentos.md` | Fundamentos M3: color (tonal palettes, dynamic color), tipografía (type scale), shape |
 | `05-m3-componentes-mobile.md` | Componentes M3 clave para mobile: NavigationBar, Cards, Buttons, SegmentedButton, SearchBar, Badges |
 | `06-prototipado-validacion.md` | Prototipado (Fase 5) con M3 + Validate (Fase 6): test con usuarios, iteración |
-| `07-m3-flutter-implementacion.md` | Llevar M3 a Flutter: `useMaterial3`, `ColorScheme.fromSeed`, `ThemeData`, `ThemeExtensions`, Material You |
+| `07-m3-flutter-implementacion.md` | Llevar M3 a Flutter: `ColorScheme.fromSeed`, `ThemeData`, `ThemeExtensions`, Material You (M3 default desde Flutter 3.16) |
 | `08-template-proyecto.md` | Explicación del template starter, cómo usarlo y personalizarlo |
 | `09-caso-completo-mvp.md` | Caso integrador: app real desde Design Sprint → prototipo M3 → Flutter |
 | `BIBLIOGRAFIA.md` | Enlaces oficiales y recursos adicionales |

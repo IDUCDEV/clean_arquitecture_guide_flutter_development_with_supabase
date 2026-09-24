@@ -152,7 +152,7 @@ def build_complete():
   <p class="subtitle">Design Sprint + Material Design 3 para apps Flutter. Define y valida qué construir antes de escribir una línea de código, y diseña la interfaz con el mismo sistema que usa Flutter de forma nativa.</p>
   <table class="meta">
     <tr>
-      <td><span class="label">Metodología</span><span class="value">Design Sprint Kit + Material Design 3</span></td>
+      <td><span class="label">Metodología</span><span class="value">GV Design Sprint + Material Design 3</span></td>
       <td><span class="label">Backend</span><span class="value">Listo para implementar con Supabase (BaaS)</span></td>
     </tr>
     <tr>

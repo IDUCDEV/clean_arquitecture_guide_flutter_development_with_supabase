@@ -12,7 +12,7 @@
   <p class="subtitle">Design Sprint + Material Design 3 para apps Flutter. Define y valida qué construir antes de escribir una línea de código, y diseña la interfaz con el mismo sistema que usa Flutter de forma nativa.</p>
   <table class="meta">
     <tr>
-      <td><span class="label">Metodología</span><span class="value">Design Sprint Kit + Material Design 3</span></td>
+      <td><span class="label">Metodología</span><span class="value">GV Design Sprint + Material Design 3</span></td>
       <td><span class="label">Backend</span><span class="value">Listo para implementar con Supabase (BaaS)</span></td>
     </tr>
     <tr>
@@ -37,7 +37,7 @@
 <div class="row"><span class="num">09</span><span class="title">09 — Caso completo: App de Reservas</span></div>
 <div class="part">Parte 6 · Cierre</div>
 <div class="row"><span class="num">BI</span><span class="title">Bibliografía y recursos oficiales</span></div></div><div class="chapter"><div class="chapter-head"><span class="num-chip">Paso 01</span><div class="kick">Parte 1 · Design Sprint</div><h2>01 — Introducción al Design Sprint para MVP Mobile</h2></div><div class="article"><h2 id="qué-es-un-design-sprint">¿Qué es un Design Sprint?</h2>
-<p>El <strong>Design Sprint</strong> es una metodología creada por Google para responder preguntas críticas de negocio a través del diseño, prototipado y testing con usuarios reales en <strong>5 días</strong>. Fue desarrollada por Jake Knapp en Google Ventures y hoy es mantenida como un recurso open-source por Google: <a href="https://designsprintkit.withgoogle.com/methodology">designsprintkit.withgoogle.com</a>.</p>
+<p>El <strong>Design Sprint</strong> es una metodología creada por Google para responder preguntas críticas de negocio a través del diseño, prototipado y testing con usuarios reales en <strong>5 días</strong>. Fue desarrollada por Jake Knapp en Google Ventures (GV) y hoy está documentada de forma oficial en <a href="https://www.gv.com/sprint/">gv.com/sprint</a>. El antiguo Design Sprint Kit de Google (con el que trabajó este tema durante años) sigue accesible como archivo histórico, pero ya no recibe soporte activo.</p>
 <p>No es una metodología más. Es el estándar que Google usa internamente para validar productos antes de invertir en desarrollo.</p>
 <h2 id="las-6-fases">Las 6 fases</h2>
 <pre><code>LUNES        MARTES      MIÉRCOLES    JUEVES      VIERNES
@@ -472,7 +472,7 @@ Métrica principal: [Ej: tiempo de reserva &lt;30s]
 </div></div>
 <div class="chapter"><div class="chapter-head"><span class="num-chip">Paso 04</span><div class="kick">Parte 2 · Material Design 3</div><h2>04 — Fundamentos de Material Design 3</h2></div><div class="article"><p><strong>El sistema de diseño oficial de Google para apps móviles</strong></p>
 <hr />
-<p>Material Design 3 (M3) es el sistema de diseño open-source de Google, también conocido como <strong>Material You</strong>. Es la evolución de Material Design y el que Flutter usa de forma nativa desde la versión 3.7.</p>
+<p>Material Design 3 (M3) es el sistema de diseño de Google, también conocido como <strong>Material You</strong>. Es la evolución de Material Design y <strong>el que Flutter usa por defecto desde la versión 3.16</strong> (antes de esa versión era opcional activarlo).</p>
 <p>M3 se basa en 3 subsistemas principales:</p>
 <pre><code>M3 Theme
 ├── ColorScheme (color)
@@ -1175,27 +1175,28 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 </div></div>
 <div class="chapter"><div class="chapter-head"><span class="num-chip">Paso 07</span><div class="kick">Parte 4 · Implementación Flutter</div><h2>07 — M3 a Flutter: Implementación</h2></div><div class="article"><p><strong>Traducir el sistema de diseño a código</strong></p>
 <hr />
-<p>Flutter implementa M3 de forma nativa. No necesitas paquetes adicionales. Solo activarlo.</p>
-<h2 id="1-activar-m3">1. Activar M3</h2>
+<p>Flutter implementa M3 de forma nativa. No necesitas paquetes adicionales.</p>
+<blockquote>
+<p><strong>Importante (Flutter 3.16+):</strong> desde la versión 3.16, <strong>Material 3 es el valor por defecto</strong> en <code>ThemeData</code>. Ya no es necesario (ni recomendado) activarlo con <code>useMaterial3: true</code>, pues ese flag está marcado para deprecación. Antes de la 3.16 sí era obligatorio; si migras un proyecto antiguo que aún usa Material 2, puedes desactivar M3 temporalmente con <code>useMaterial3: false</code> mientras completas la migración.</p>
+</blockquote>
+<h2 id="1-configurar-el-tema-m3">1. Configurar el tema M3</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode dart"><code class="sourceCode dart"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>MaterialApp(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  theme<span class="op">:</span> ThemeData(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    useMaterial3<span class="op">:</span> <span class="cn">true</span><span class="op">,</span> <span class="co">// ← Activa M3</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      seedColor<span class="op">:</span> Color(<span class="dv">0xFF6750A4</span>)<span class="op">,</span> <span class="co">// seed color</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  darkTheme<span class="op">:</span> ThemeData(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    useMaterial3<span class="op">:</span> <span class="cn">true</span><span class="op">,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      seedColor<span class="op">:</span> Color(<span class="dv">0xFF6750A4</span>)<span class="op">,</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      brightness<span class="op">:</span> Brightness<span class="op">.</span>dark<span class="op">,</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  themeMode<span class="op">:</span> ThemeMode<span class="op">.</span>system<span class="op">,</span> <span class="co">// respeta preferencia del sistema</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<p>Con <code>useMaterial3: true</code>:</p>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      seedColor<span class="op">:</span> Color(<span class="dv">0xFF6750A4</span>)<span class="op">,</span> <span class="co">// seed color</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  darkTheme<span class="op">:</span> ThemeData(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      seedColor<span class="op">:</span> Color(<span class="dv">0xFF6750A4</span>)<span class="op">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      brightness<span class="op">:</span> Brightness<span class="op">.</span>dark<span class="op">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  themeMode<span class="op">:</span> ThemeMode<span class="op">.</span>system<span class="op">,</span> <span class="co">// respeta preferencia del sistema</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Con M3 activo (default desde Flutter 3.16):</p>
 <ul>
-<li>Los componentes M3 cambian sus defaults (NavigationBar, Cards, Buttons, etc.)</li>
+<li>Los componentes usan los defaults M3 (NavigationBar, Cards, Buttons, etc.)</li>
 <li>Se activa la escala tipográfica M3</li>
 <li>Las formas cambian a las redondeadas de M3</li>
 </ul>
@@ -1298,7 +1299,7 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <h2 id="5-componentes-m3">5. Componentes M3</h2>
-<p>Una vez activado <code>useMaterial3</code>, los widgets de Flutter ya usan M3:</p>
+<p>Una vez configurado el <code>ColorScheme</code> (con M3 como default), los widgets de Flutter ya usan M3:</p>
 <table>
 <thead>
 <tr>
@@ -1372,12 +1373,11 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 <h2 id="7-dark-mode">7. Dark mode</h2>
 <p>Con <code>ColorScheme.fromSeed</code> y <code>Brightness.dark</code>, obtienes dark mode automático:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode dart"><code class="sourceCode dart"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ThemeData(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  useMaterial3<span class="op">:</span> <span class="cn">true</span><span class="op">,</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    seedColor<span class="op">:</span> brandColor<span class="op">,</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    brightness<span class="op">:</span> Brightness<span class="op">.</span>dark<span class="op">,</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  colorScheme<span class="op">:</span> ColorScheme<span class="op">.</span>fromSeed(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    seedColor<span class="op">:</span> brandColor<span class="op">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    brightness<span class="op">:</span> Brightness<span class="op">.</span>dark<span class="op">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  )<span class="op">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>No necesitas ajustar nada. Los componentes M3 se adaptan solos.</p>
 <h2 id="8-arquitectura-del-theme-buena-práctica">8. Arquitectura del theme (buena práctica)</h2>
 <p>Separa el theme en archivos independientes:</p>
@@ -1388,8 +1388,10 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 └── app_extensions.dart   → ThemeExtensions (spacing, radii)</code></pre>
 <p>Esto es exactamente lo que incluye el template de este módulo.</p>
 <h2 id="checklist-de-implementación-m3">Checklist de implementación M3</h2>
+<blockquote>
+<p>M3 es el default desde Flutter 3.16. No uses <code>useMaterial3: true</code> (deprecated). Solo usa <code>useMaterial3: false</code> si estás migrando un proyecto con Material 2.</p>
+</blockquote>
 <ul class="task-list">
-<li><label><input type="checkbox" /><code>useMaterial3: true</code> activado</label></li>
 <li><label><input type="checkbox" /><code>ColorScheme.fromSeed</code> con seed color de marca</label></li>
 <li><label><input type="checkbox" />Light + dark scheme definidos</label></li>
 <li><label><input type="checkbox" /><code>textTheme</code> personalizado (fuente de marca si aplica)</label></li>
@@ -1481,12 +1483,12 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 <div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">flutter</span><span class="kw">:</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">sdk</span><span class="kw">:</span><span class="at"> flutter</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">google_fonts</span><span class="kw">:</span><span class="at"> ^6.1.0</span><span class="co">  # tipografía M3 fácil</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">google_fonts</span><span class="kw">:</span><span class="at"> ^8.2.1</span><span class="co">  # tipografía M3 fácil</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dev_dependencies</span><span class="kw">:</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">flutter_test</span><span class="kw">:</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">sdk</span><span class="kw">:</span><span class="at"> flutter</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">flutter_lints</span><span class="kw">:</span><span class="at"> ^3.0.0</span></span></code></pre></div>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">flutter_lints</span><span class="kw">:</span><span class="at"> ^6.0.0</span></span></code></pre></div>
 <h2 id="integración-con-otros-módulos">Integración con otros módulos</h2>
 <table>
 <thead>
@@ -1819,14 +1821,19 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 </thead>
 <tbody>
 <tr>
-<td>Google Design Sprint Kit (oficial)</td>
+<td>GV Design Sprint (Jake Knapp) — guía oficial del proceso</td>
 <td>Guía + métodos</td>
-<td><a href="https://designsprintkit.withgoogle.com/methodology">https://designsprintkit.withgoogle.com/methodology</a></td>
+<td><a href="https://www.gv.com/sprint/">https://www.gv.com/sprint/</a></td>
 </tr>
 <tr>
-<td>GV Design Sprint (Jake Knapp)</td>
+<td>The Design Sprint (libro)</td>
 <td>Libro</td>
 <td><a href="https://www.gv.com/sprint/">https://www.gv.com/sprint/</a></td>
+</tr>
+<tr>
+<td>Google Design Sprint Kit (histórico, sin soporte activo)</td>
+<td>Guía + métodos archivada</td>
+<td><a href="https://designsprintkit.withgoogle.com/methodology">https://designsprintkit.withgoogle.com/methodology</a></td>
 </tr>
 <tr>
 <td>The Design Sprint (videos)</td>
@@ -1866,9 +1873,9 @@ Jueves PM: Flutter → empezar a codificar las pantallas (para producción)</cod
 <td><a href="https://www.figma.com/community/file/1035203688168086460">https://www.figma.com/community/file/1035203688168086460</a></td>
 </tr>
 <tr>
-<td>Material A-Z</td>
+<td>Componentes M3 (catálogo A–Z)</td>
 <td>Glosario</td>
-<td><a href="https://m3.material.io/material-az">https://m3.material.io/material-az</a></td>
+<td><a href="https://m3.material.io/components">https://m3.material.io/components</a></td>
 </tr>
 </tbody>
 </table>

@@ -108,12 +108,12 @@ En `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.1.0  # tipografía M3 fácil
+  google_fonts: ^8.2.1  # tipografía M3 fácil
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^6.0.0
 ```
 
 ## Integración con otros módulos
