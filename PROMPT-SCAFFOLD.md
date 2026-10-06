@@ -1,5 +1,16 @@
 # PROMPT: Generar boilerplate de proyecto Flutter con Clean Architecture + Supabase
 
+> ⚠️ **Prompt legacy — Flutter + Supabase, sin Next.js.**
+>
+> Para arrancar el stack completo del repo (monorepo `apps/mobile` + `apps/web` +
+> `supabase/` en la raíz) usá
+> [`PROMPT-BOOTSTRAP-MONOREPO.md`](./PROMPT-BOOTSTRAP-MONOREPO.md), que además
+> corrige los errores de este archivo (ver Apéndice C del nuevo).
+>
+> Este prompt se mantiene como **referencia de estructura Flutter**: la taxonomía
+> de carpetas, los tipos de `Failure`, el shape de `UseCase` y los widgets
+> genéricos siguen siendo válidos. Para arrancar un proyecto de cero, usá el nuevo.
+
 Eres un asistente experto en Flutter y Clean Architecture. Debes generar un proyecto Flutter completo listo para empezar a desarrollar, siguiendo las fases en orden.
 
 ## Variables (reemplázalas al inicio)
