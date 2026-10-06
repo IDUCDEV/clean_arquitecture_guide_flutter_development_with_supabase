@@ -67,25 +67,23 @@ Queremos un feature **Order** con:
 
 Como pediste `wiring` en el **Paso 1**, `clean-arch-feature` no se detiene al generar los archivos: en el mismo turno invoca `di-getit-scaffold` y `go-route-scaffold`, pasándoles los componentes recién creados. Cada skill es dueña de su archivo central; aquí solo se delega.
 
-### 2a. `di-getit-scaffold` actualiza el service locator
+### 2a. `di-getit-scaffold` deja el feature order anotado
 
-Actualiza `lib/core/di/service_locator.dart` (modo manual) añadiendo las secciones de **DataSources**, **Repositories**, **UseCases** y **Cubits** del feature order, en ese orden de capas:
+En el modo por defecto (`injectable`), el registro **no se escribe a mano**: `di-getit-scaffold` verifica que las clases del feature salgan anotadas (los templates de `clean-arch-feature` ya las emiten) y que `external_module.dart` tenga lo externo que pide el feature:
 
 ```dart
-// ──────────────────────────────────────────────
-// DataSources
-// ──────────────────────────────────────────────
-sl
-  ..registerLazySingleton<OrderRemoteDataSource>(
-    () => OrderRemoteDataSourceImpl(supabase: sl<SupabaseClient>()),
-  );
-
-// ... Repositories → UseCases → Cubits, ver íntegro en Parte II §12
+// En las clases del feature order (ver íntegro en Parte II §12):
+@LazySingleton(as: OrderRemoteDataSource)   // OrderRemoteDataSourceImpl
+@LazySingleton(as: OrderRepository)         // OrderRepositoryImpl
+@lazySingleton                              // GetOrders, GetOrder, CreateOrder, UpdateOrder, DeleteOrder
+@injectable                                 // OrderCubit
 ```
 
-El código completo está en [Parte II — sección 12](#12-libcorediservice_locatordart--registros-añadidos-por-di-getit-scaffold) — aquí no se duplica.
+Después corres `make gen` y `service_locator.config.dart` se regenera solo con los registros de Order.
 
-**Tú haces después:** Nada, queda listo.
+El detalle completo está en **Parte II — sección 12** — aquí no se duplica.
+
+**Tú haces después:** correr `make gen` y commitear `service_locator.config.dart` si cambió.
 
 ### 2b. `go-route-scaffold` actualiza el router
 
@@ -104,7 +102,7 @@ El código completo está en [Parte II — sección 13](#13-libcorerouterapp_rou
 - Envolver `MaterialApp.router(routerConfig: AppRouter().router)` con `MultiBlocProvider` que incluya los cubits necesarios
 - Implementar `OrdersListPage` y `OrderDetailPage`
 
-> **Sin `wiring`:** si hubieras omitido `wiring` en el prompt del Paso 1, estos dos sub-pasos no se ejecutarían; tendrías que pedirlos aparte ("Registra el feature order en service_locator", "Añade rutas de orders al router").
+> **Sin `wiring`:** si hubieras omitido `wiring` en el prompt del Paso 1, estos dos sub-pasos no se ejecutarían; tendrías que pedirlos aparte ("Deja el feature order anotado para DI y corre `make gen`", "Añade rutas de orders al router").
 
 ---
 
@@ -242,11 +240,15 @@ class _OrderEditPageState extends State<OrderEditPage> {
 ```dart
 import 'package:fpdart/fpdart.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `CancelOrderParams` (abajo) NO se anota.
+@lazySingleton
 class CancelOrder extends UseCase<void, CancelOrderParams> {
   final OrderRepository repository;
 
@@ -270,7 +272,7 @@ class CancelOrderParams extends Equatable {
 
 **Tú haces después:**
 - Implementar `call()` llamando al repositorio
-- Registrar `CancelOrder` en service_locator
+- El registro de `CancelOrder` aparece tras correr `make gen` (la clase ya lleva `@lazySingleton`)
 - Añadir método `cancelOrder` en el cubit
 
 ---
@@ -362,7 +364,7 @@ Variaciones rápidas para ver cómo cambia el resultado según los parámetros o
 | Elemento | Paso 1 (con extras) | Mini-A (sin extras) |
 |---|---|---|
 | Páginas | `orders_list_page.dart` + `order_detail_page.dart` | placeholder genérico `order_page.dart` |
-| `service_locator.dart` | Actualizado (wiring `di`) | No se toca — el resumen final lo recuerda |
+| `service_locator.config.dart` | Regenerado con `make gen` (wiring `di`) | No se toca — el resumen final lo recuerda |
 | `app_router.dart` | Actualizado (wiring `router`) | No se toca |
 | Entity, model, datasource, SQL + RLS | Generados | **Igual**, se generan |
 
@@ -461,10 +463,10 @@ class OrderItemModel extends OrderItem {
 | Paso | Skill | Archivos generados | Lo que haces tú |
 |---|---|---|---|
 | 1 | `clean-arch-feature` | 18 archivos + SQL migration + 2 páginas | Ejecutar migración, ajustar RLS, bodies de páginas |
-| 2 | `clean-arch-feature` → orquesta `di-getit-scaffold` + `go-route-scaffold` | service_locator.dart + app_router.dart actualizados | Conectar en main.dart |
+| 2 | `clean-arch-feature` → orquesta `di-getit-scaffold` + `go-route-scaffold` | Feature anotado + `make gen` → `service_locator.config.dart`; `app_router.dart` actualizado | Correr `make gen`, conectar en main.dart |
 | 3 | *(tú implementas)* | — | Bodies de datasource, repository, cubit |
 | 4 | `clean-arch-component` | order_edit_page.dart | Implementar + conectar router |
-| 5 | `clean-arch-component` | cancel_order.dart | Implementar + registrar DI + cubit |
+| 5 | `clean-arch-component` | cancel_order.dart (`@lazySingleton`) | Implementar + `make gen` + método en cubit |
 | 6 | `flutter-test-generator` | order_cubit_test.dart | Completar datos de prueba |
 | 7 | *(tú completas)* | — | Tests restantes + `flutter test` |
 
@@ -522,11 +524,11 @@ supabase/
     └── {timestamp}_create_orders.sql
 ```
 
-Además, `clean-arch-feature` orquesta el wiring (`[di, router]`), que **actualiza** dos archivos existentes de `core/`:
+Además, `clean-arch-feature` orquesta el wiring (`[di, router]`): deja las clases del feature **anotadas** para DI y **actualiza** el router:
 
 ```
-lib/core/di/service_locator.dart      # + registros de Order (di-getit-scaffold)
-lib/core/router/app_router.dart       # + rutas /orders y /orders/:id (go-route-scaffold)
+lib/core/di/service_locator.config.dart  # regenerado por `make gen` con los registros de Order (clases anotadas en los templates)
+lib/core/router/app_router.dart          # + rutas /orders y /orders/:id (go-route-scaffold)
 ```
 
 ---
@@ -609,11 +611,14 @@ abstract class OrderRepository {
 
 ```dart
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+@lazySingleton
 class GetOrders extends UseCase<List<Order>, NoParams> {
   final OrderRepository repository;
 
@@ -631,11 +636,15 @@ class GetOrders extends UseCase<List<Order>, NoParams> {
 ```dart
 import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `GetOrderParams` (abajo) NO se anota.
+@lazySingleton
 class GetOrder extends UseCase<Order, GetOrderParams> {
   final OrderRepository repository;
 
@@ -662,11 +671,15 @@ class GetOrderParams extends Equatable {
 ```dart
 import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `CreateOrderParams` (abajo) NO se anota.
+@lazySingleton
 class CreateOrder extends UseCase<void, CreateOrderParams> {
   final OrderRepository repository;
 
@@ -701,11 +714,15 @@ class CreateOrderParams extends Equatable {
 ```dart
 import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `UpdateOrderParams` (abajo) NO se anota.
+@lazySingleton
 class UpdateOrder extends UseCase<void, UpdateOrderParams> {
   final OrderRepository repository;
 
@@ -742,11 +759,15 @@ class UpdateOrderParams extends Equatable {
 ```dart
 import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `DeleteOrderParams` (abajo) NO se anota.
+@lazySingleton
 class DeleteOrder extends UseCase<void, DeleteOrderParams> {
   final OrderRepository repository;
 
@@ -833,6 +854,7 @@ class OrderModel extends Order {
 
 ```dart
 import 'dart:async';
+import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:order_app/core/error/exceptions.dart';
 import 'package:order_app/features/order/data/models/order_model.dart';
@@ -851,6 +873,9 @@ abstract class OrderRemoteDataSource {
   Stream<OrderModel> watchById(String id);
 }
 
+/// `@LazySingleton(as:)`: cuando algo pida `OrderRemoteDataSource`, se
+/// resuelve a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: OrderRemoteDataSource)
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   final SupabaseClient _supabase;
   final String _tableName = 'orders';
@@ -896,12 +921,16 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
 ```dart
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/error/exceptions.dart';
 import 'package:order_app/core/error/failures.dart';
 import 'package:order_app/features/order/data/datasources/order_remote_datasource.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/repositories/order_repository.dart';
 
+/// `@LazySingleton(as:)`: cuando algo pida `OrderRepository`, se resuelve a
+/// esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: OrderRepository)
 class OrderRepositoryImpl implements OrderRepository {
   final OrderRemoteDataSource remoteDataSource;
 
@@ -941,6 +970,7 @@ class OrderRepositoryImpl implements OrderRepository {
 ```dart
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:order_app/core/common/usecase.dart';
 import 'package:order_app/features/order/domain/entities/order.dart';
 import 'package:order_app/features/order/domain/usecases/create_order.dart';
@@ -951,6 +981,9 @@ import 'package:order_app/features/order/domain/usecases/update_order.dart';
 
 part 'order_state.dart';
 
+/// `@injectable` genera un `factory`: cada pantalla que pida el cubit recibe
+/// una instancia nueva. **Nunca `@lazySingleton` en un cubit de pantalla.**
+@injectable
 class OrderCubit extends Cubit<OrderState> {
   final GetOrders _getOrders;
   final GetOrder _getOrder;
@@ -1226,65 +1259,55 @@ CREATE POLICY "Users can update own orders"
 
 ---
 
-## Wiring: archivos actualizados por orquestación
+## Wiring: orquestación de DI y rutas
 
-### 12. `lib/core/di/service_locator.dart` — registros añadidos por `di-getit-scaffold`
+### 12. `lib/core/di/` — anotaciones del feature order (por `di-getit-scaffold`)
 
-Los imports de `core/` y las librerías externas ya existían. `di-getit-scaffold` añade **solo** estas secciones (modo manual):
+En modo `injectable` el registro **no se escribe a mano**: cada clase del feature se anota donde vive y `make gen` produce `service_locator.config.dart`.
 
-```dart
-import 'package:order_app/features/order/data/datasources/order_remote_datasource.dart';
-import 'package:order_app/features/order/data/repositories/order_repository_impl.dart';
-import 'package:order_app/features/order/domain/repositories/order_repository.dart';
-import 'package:order_app/features/order/domain/usecases/create_order.dart';
-import 'package:order_app/features/order/domain/usecases/delete_order.dart';
-import 'package:order_app/features/order/domain/usecases/get_order.dart';
-import 'package:order_app/features/order/domain/usecases/get_orders.dart';
-import 'package:order_app/features/order/domain/usecases/update_order.dart';
-import 'package:order_app/features/order/presentation/cubit/order_cubit.dart';
-```
+**`service_locator.dart` no cambia** — solo declara `sl` + `configureDependencies()` (lo genera el bootstrap):
 
 ```dart
-// ──────────────────────────────────────────────
-// DataSources
-// ──────────────────────────────────────────────
-sl
-  ..registerLazySingleton<OrderRemoteDataSource>(
-    () => OrderRemoteDataSourceImpl(supabase: sl<SupabaseClient>()),
-  );
+import 'package:get_it/get_it.dart';
+import 'package:injectable/injectable.dart';
+import 'package:order_app/core/di/service_locator.config.dart';
 
-// ──────────────────────────────────────────────
-// Repositories
-// ──────────────────────────────────────────────
-sl
-  ..registerLazySingleton<OrderRepository>(
-    () => OrderRepositoryImpl(
-      remoteDataSource: sl<OrderRemoteDataSource>(),
-    ),
-  );
+final GetIt sl = GetIt.instance;
 
-// ──────────────────────────────────────────────
-// UseCases
-// ──────────────────────────────────────────────
-sl
-  ..registerLazySingleton(() => GetOrders(sl()))
-  ..registerLazySingleton(() => GetOrder(sl()))
-  ..registerLazySingleton(() => CreateOrder(sl()))
-  ..registerLazySingleton(() => UpdateOrder(sl()))
-  ..registerLazySingleton(() => DeleteOrder(sl()));
-
-// ──────────────────────────────────────────────
-// Cubits
-// ──────────────────────────────────────────────
-sl
-  ..registerFactory(() => OrderCubit(
-        getOrders: sl(),
-        getOrder: sl(),
-        createOrder: sl(),
-        updateOrder: sl(),
-        deleteOrder: sl(),
-      ));
+@InjectableInit(
+  initializerName: 'init',
+  preferRelativeImports: false,
+)
+Future<void> configureDependencies() async {
+  await sl.init();
+}
 ```
+
+**Anotaciones de las clases del feature** (los templates de `clean-arch-feature` ya las emiten; aquí están consolidadas):
+
+```dart
+// data/datasources/order_remote_datasource.dart
+@LazySingleton(as: OrderRemoteDataSource)
+class OrderRemoteDataSourceImpl implements OrderRemoteDataSource { ... }
+
+// data/repositories/order_repository_impl.dart
+@LazySingleton(as: OrderRepository)
+class OrderRepositoryImpl implements OrderRepository { ... }
+
+// domain/usecases/get_orders.dart (get_order, create_order, update_order, delete_order: igual)
+@lazySingleton
+class GetOrders extends UseCase<List<Order>, NoParams> { ... }
+
+// presentation/cubit/order_cubit.dart
+@injectable
+class OrderCubit extends Cubit<OrderState> { ... }
+```
+
+**`external_module.dart`** (si el proyecto no lo traía del bootstrap, se crea con lo que el feature pide de terceros): `SupabaseClient` vía `Supabase.instance.client`, `Isar` (`@preResolve`), `InternetConnection.createInstance()` y `http.Client()`.
+
+Entity, Model, la interface `OrderRepository` y los `*Params` **no** llevan anotación: son tipos de datos o contratos, no registros.
+
+**Tú haces después:** `make gen` (regenera `service_locator.config.dart`) y verifica que el diff sea solo ese `.config.dart`.
 
 ### 13. `lib/core/router/app_router.dart` — rutas añadidas por `go-route-scaffold`
 
@@ -1387,18 +1410,92 @@ Escenario base: el feature **Order** con Supabase del [Escenario](#escenario) (a
 
 ## A. `di-getit-scaffold` — registro de dependencias
 
-### A.1 Prompt
+### A.1 Prompts
 
-> Registra el feature order en service_locator en modo manual
+> Registra el feature order en service_locator (modo `injectable` — default)
 
-### A.2 Output (modo manual) — `lib/core/di/service_locator.dart` completo
+> ¿Proyecto brownfield con cascada manual (v1)? Pide el modo `manual` → ver [A.3](#a3-output-modo-manual--legacy--brownfield).
+
+### A.2 Output (modo injectable — default)
+
+Con `injectable` no hay bloque nuevo que añadir a `service_locator.dart`: las clases del feature se anotan donde viven y `make gen` regenera `service_locator.config.dart`.
+
+**`lib/core/di/service_locator.dart`** (estático — igual al del bootstrap):
 
 ```dart
 import 'package:get_it/get_it.dart';
-import 'package:isar/isar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:dio/dio.dart';
+import 'package:injectable/injectable.dart';
+
+import 'package:order_app/core/di/service_locator.config.dart';
+
+final GetIt sl = GetIt.instance;
+
+@InjectableInit(
+  initializerName: 'init',
+  preferRelativeImports: false,
+)
+Future<void> configureDependencies() async {
+  await sl.init();
+}
+```
+
+**`lib/core/di/external_module.dart`** (terceros que el feature necesita):
+
+```dart
+import 'package:http/http.dart' as http;
+import 'package:injectable/injectable.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:isar_community/isar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:order_app/core/data/local/isar_service.dart';
+
+@module
+abstract class ExternalModule {
+  @preResolve
+  Future<Isar> get isar async {
+    await IsarService.initialize();
+    return IsarService.instance;
+  }
+
+  @lazySingleton
+  InternetConnection get internetConnection =>
+      InternetConnection.createInstance();
+
+  @lazySingleton
+  http.Client get httpClient => http.Client();
+
+  @lazySingleton
+  SupabaseClient get supabaseClient => Supabase.instance.client;
+}
+```
+
+**Anotaciones en las clases del feature** (las emiten los templates de `clean-arch-feature` / `clean-arch-component`; aquí están consolidadas):
+
+| Clase | Anotación | Registro que genera |
+|---|---|---|
+| `OrderRemoteDataSourceImpl` | `@LazySingleton(as: OrderRemoteDataSource)` | lazySingleton de la abstracta |
+| `OrderRepositoryImpl` | `@LazySingleton(as: OrderRepository)` | lazySingleton de la abstracta |
+| `GetOrders`, `GetOrder`, `CreateOrder`, `UpdateOrder`, `DeleteOrder` | `@lazySingleton` | una instancia para la app |
+| `OrderCubit` | `@injectable` | `factory`, una por pantalla |
+| Entity, Model, `OrderRepository`, `*Params` | — | **nunca** se anotan |
+
+> El registro real lo escribe `make gen` en `service_locator.config.dart`, que **se commitea** y nunca se edita a mano. Si al regenerar queda un diff, alguien anotó algo sin correr `make gen` (CI lo detecta con `git diff --exit-code`).
+
+### A.3 Output (modo manual — legacy / brownfield)
+
+> ⚠️ **Modo legacy:** solo para proyectos con la cascada manual ya existente (v1) que aún no migran a `injectable`. Para proyectos nuevos usa el modo `injectable` ([A.2](#a2-output-modo-injectable--default)).
+
+**Prompt:** "Registra el feature order en service_locator en modo manual"
+
+`lib/core/di/service_locator.dart` completo:
+
+```dart
+import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:isar_community/isar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // ... imports de datasources, repositories, usecases, cubits
 import 'package:order_app/features/order/data/datasources/order_remote_datasource.dart';
 import 'package:order_app/features/order/data/repositories/order_repository_impl.dart';
@@ -1412,7 +1509,7 @@ import 'package:order_app/features/order/presentation/cubit/order_cubit.dart';
 // import 'package:order_app/core/services/user_session.dart';
 // import 'package:order_app/core/network/network_info.dart';
 
-final sl = GetIt.instance;
+final GetIt sl = GetIt.instance;
 
 Future<void> initDependencies() async {
   await IsarService.initialize();
@@ -1422,18 +1519,17 @@ Future<void> initDependencies() async {
   // ──────────────────────────────────────────────
   sl
     ..registerLazySingleton<Isar>(() => IsarService.instance)
-    ..registerLazySingleton<SupabaseClient>(() => Supabase.instance.client)
-    ..registerLazySingleton<Dio>(() {
-      throw UnimplementedError('Dio.init — configure BaseOptions');
-    })
-    ..registerLazySingleton<InternetConnection>(InternetConnection.createInstance);
+    ..registerLazySingleton<InternetConnection>(InternetConnection.createInstance)
+    ..registerLazySingleton<http.Client>(http.Client.new);
+  // `SupabaseClient` NO se registra: los datasources reciben
+  // `Supabase.instance.client` directo en su constructor.
 
   // ──────────────────────────────────────────────
   // Core services
   // ──────────────────────────────────────────────
   sl
     ..registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl<InternetConnection>()))
-    ..registerLazySingleton<UserSession>(() => UserSessionImpl(sl<Isar>(), supabase: sl<SupabaseClient>()))
+    ..registerLazySingleton<UserSession>(() => UserSessionImpl(sl<Isar>(), supabase: Supabase.instance.client))
     ..registerLazySingleton<CacheManager>(CacheManager.new);
 
   // ──────────────────────────────────────────────
@@ -1441,7 +1537,7 @@ Future<void> initDependencies() async {
   // ──────────────────────────────────────────────
   sl
     ..registerLazySingleton<OrderRemoteDataSource>(
-      () => OrderRemoteDataSourceImpl(supabase: sl<SupabaseClient>()),
+      () => OrderRemoteDataSourceImpl(supabase: Supabase.instance.client),
     );
 
   // ──────────────────────────────────────────────
@@ -1478,51 +1574,7 @@ Future<void> initDependencies() async {
 }
 ```
 
-> Si `service_locator.dart` ya existía con otros features, `di-getit-scaffold` **añade** los nuevos registros en su sección correspondiente, respetando el orden de capas. Los imports de `core/` van comentados hasta que existan esos servicios.
-
-### A.3 Output (modo injectable) — `lib/core/di/injection_container.dart`
-
-**Prompt:** "Registra el feature order en service_locator en modo injectable"
-
-```dart
-import 'package:get_it/get_it.dart';
-import 'package:injectable/injectable.dart';
-
-final getIt = GetIt.instance;
-
-@InjectableInit(
-  initializerName: r'$initGetIt',
-  preferRelativeImports: true,
-  asExtension: false,
-)
-Future<void> configureDependencies() async {
-  await $initGetIt(getIt);
-}
-```
-
-Anotaciones requeridas en cada clase del feature (las añade el desarrollador al implementar):
-
-| Capa | Anotación |
-|---|---|
-| DataSource (impl) | `@LazySingleton(as: OrderRemoteDataSource)` |
-| Repository (impl) | `@LazySingleton(as: OrderRepository)` |
-| UseCase | `@lazySingleton` |
-| Cubit | `@injectable` |
-| Módulo externo | `@module` en abstract class con `@preResolve` |
-
-```dart
-@module
-abstract class ExternalModule {
-  @preResolve
-  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
-
-  @lazySingleton
-  Dio get dio => Dio(BaseOptions(
-        baseUrl: 'https://api.example.com',
-        connectTimeout: const Duration(seconds: 30),
-      ));
-}
-```
+> Si `service_locator.dart` ya existía con otros features, `di-getit-scaffold` **añade** los nuevos registros en su sección correspondiente, respetando el orden de capas. `SupabaseClient` no se registra (los datasources reciben `Supabase.instance.client` directo) y los imports de `core/` van comentados hasta que existan esos servicios.
 
 ---
 

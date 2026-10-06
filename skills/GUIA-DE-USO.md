@@ -35,8 +35,8 @@ Si el asistente no invoca la skill correcta, pídele explícitamente el nombre.
 Las skills asumen un proyecto Flutter ya inicializado con la base Clean Architecture (`lib/core/`). Ver checklist completo en [README.md](./README.md#prerrequisitos-del-proyecto). Lo esencial:
 
 - `lib/core/common/usecase.dart`, `core/error/failures.dart`, `core/error/exceptions.dart`
-- `lib/core/di/service_locator.dart` (para DI) y `lib/core/router/app_router.dart` (para rutas)
-- Deps en `pubspec.yaml`: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `get_it`, `go_router`
+- `lib/core/di/service_locator.dart` (+ `service_locator.config.dart` regenerado con `make gen`) para DI, y `lib/core/router/app_router.dart` (para rutas)
+- Deps en `pubspec.yaml`: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `get_it`, `go_router`, `injectable` (+ `injectable_generator`, `build_runner` para `make gen`)
 
 ---
 
@@ -97,7 +97,7 @@ Regla de naming: `list` genera plural (`orders_list_page.dart`); el resto singul
 
 | Parámetro | Qué hace |
 |---|---|
-| `wiring: [di]` | Delega en `di-getit-scaffold` → actualiza `service_locator.dart` |
+| `wiring: [di]` | Delega en `di-getit-scaffold` → deja el feature anotado; `make gen` escribe el registro en `service_locator.config.dart` |
 | `wiring: [router]` | Delega en `go-route-scaffold` → añade rutas a `app_router.dart` |
 | `wiring: [di, router]` | Ambos en el mismo turno |
 
@@ -107,7 +107,7 @@ Regla de naming: `list` genera plural (`orders_list_page.dart`); el resto singul
 
 ### 2.5 Qué te da y qué sigue
 
-Genera (si todo se pide): entity, repository interface, model, datasource, repository_impl, 5 usecases, cubit + state, páginas, migración SQL, registros en DI y rutas en el router.
+Genera (si todo se pide): entity, repository interface, model, datasource, repository_impl, 5 usecases, cubit + state, páginas, migración SQL, clases anotadas para DI (vía `di-getit-scaffold` + `make gen`) y rutas en el router.
 
 **Lo siguiente es tuyo:** implementar los bodies (`UnimplementedError`), revisar RLS policies, ejecutar la migración, y `flutter pub get` si añadiste paquetes.
 
@@ -191,16 +191,16 @@ Siempre requiere `feature_name` y `component_type`.
 
 ## 4. `di-getit-scaffold` — inyección de dependencias
 
-Genera/actualiza el módulo GetIt. Puede invocarse sola o ser orquestada desde `clean-arch-feature` (`wiring: [di]`).
+Mantiene el módulo GetIt. **Modo por defecto: `injectable`** (el de `PROMPT-BOOTSTRAP-MONOREPO.md` v2): cada clase se anota donde vive y `make gen` escribe el registro. Puede invocarse sola o ser orquestada desde `clean-arch-feature` (`wiring: [di]`).
 
 ### 4.1 Inputs
 
 | Parámetro | Qué es | Formato | Ejemplo |
 |---|---|---|---|
-| `mode` | Estilo de DI | `manual` o `injectable` | `manual` |
+| `mode` | Estilo de DI. **Default: `injectable`** | `injectable` o `manual` | `injectable` |
 | `app_name` | Nombre del paquete | snake_case | `order_app` |
 | `features` | Features a registrar | YAML | (abajo) |
-| `external_libs` | Librerías externas | lista | `SupabaseClient, Dio, Isar, InternetConnection` |
+| `external_libs` | Librerías externas necesarias | lista | `SupabaseClient, Isar, InternetConnection, http.Client` |
 
 **Formato `features`:**
 
@@ -215,15 +215,19 @@ usecases: [GetProducts, GetProduct, CreateProduct, UpdateProduct, DeleteProduct]
 cubit: ProductCubit
 ```
 
-### 4.2 Ejemplo de prompt
+### 4.2 Ejemplo de prompt (modo default)
 
-> Usa la skill `di-getit-scaffold`. Modo `manual`, app `order_app`. Registra el feature `order`: datasource `OrderRemoteDataSource` (usa `SupabaseClient`), repository `OrderRepository` / `OrderRepositoryImpl`, usecases `GetOrders, GetOrder, CreateOrder, UpdateOrder, DeleteOrder`, cubit `OrderCubit`.
+> Usa la skill `di-getit-scaffold` (modo `injectable`), app `order_app`. Registra el feature `order`: datasource `OrderRemoteDataSourceImpl` (usa `SupabaseClient`), repository `OrderRepositoryImpl`, usecases `GetOrders, GetOrder, CreateOrder, UpdateOrder, DeleteOrder`, cubit `OrderCubit`.
 
-### 4.3 Reglas que aplica
+### 4.3 Reglas que aplica (modo `injectable`)
 
-- Orden de capas: external → core → datasources → repositories → usecases → cubits.
-- `registerLazySingleton` para todo excepto cubits (`registerFactory`).
-- Si `service_locator.dart` no existe, lo crea; si existe, añade registros en su sección.
+- Cada clase se anota donde vive; `make gen` escribe el registro en `service_locator.config.dart` (que **se commitea** y nunca se edita a mano).
+- `@LazySingleton(as: X)` en datasources y repositories (impl); `@lazySingleton` en usecases y servicios; `@injectable` en cubits de pantalla; `@module` para terceros en `external_module.dart`.
+- Entity, Model, interface de Repository y Params **nunca** se anotan.
+- Si `external_module.dart` no existe, la skill lo crea con `SupabaseClient` (`Supabase.instance.client`), `Isar` (`@preResolve`), `InternetConnection.createInstance()` y `http.Client()`.
+- Al terminar, recordar `make gen` + commitear el `.config.dart` si cambió.
+
+> **Modo `manual` (legacy/brownfield):** solo para proyectos con cascada manual existente (v1). Orden de capas: external → core → datasources → repositories → usecases → cubits; `registerLazySingleton` para todo excepto cubits (`registerFactory`). `SupabaseClient` NO se registra: los datasources lo reciben como `Supabase.instance.client`.
 
 ---
 
@@ -333,10 +337,10 @@ python3 skills/flutter-test-generator/generate_test.py lib/features/product/pres
 
 | Pides | Qué pasa |
 |---|---|
-| `wiring: [di]` | Genera el feature y luego invoca `di-getit-scaffold` con los componentes generados → actualiza `service_locator.dart` |
+| `wiring: [di]` | Genera el feature y luego invoca `di-getit-scaffold`: los componentes salen anotados; recuerda correr `make gen` |
 | `wiring: [router]` | Genera el feature y luego invoca `go-route-scaffold` con las páginas generadas → actualiza `app_router.dart` |
 | `wiring: [di, router]` | Ambos, en el mismo turno |
-| (sin `wiring`) | No toca DI ni router. El resumen final te recuerda registrarlo y añadir rutas |
+| (sin `wiring`) | No toca DI ni router. El resumen final te recuerda correr `make gen` (el feature ya sale anotado) y añadir rutas |
 
 **Beneficio:** no duplicas inputs — describes el feature una sola vez y el wiring se propaga automáticamente.
 
@@ -348,7 +352,7 @@ python3 skills/flutter-test-generator/generate_test.py lib/features/product/pres
 |---|---|---|---|
 | `clean-arch-feature` | `feature_name` + `fields` + `operations` **o** `design_file` | Supabase (`table_name`, `columns`), `pages`, `wiring` | "Crea un feature `product` con campos `id`, `name`, `price` y operaciones CRUD..." / "Usa la skill `clean-arch-feature` con `design_file: .../disenio-feature-buyers.md`" |
 | `clean-arch-component` | `feature_name`, `component_type` | `fields`, `operation`, `page_name`, `pattern_type` (según tipo) | "Añade un usecase `cancel_order` al feature `order`" |
-| `di-getit-scaffold` | `mode`, `app_name`, `features` | `external_libs`, `local_datasource` | "Registra el feature `product` en el service locator (manual)" |
+| `di-getit-scaffold` | `mode` (default `injectable`), `app_name`, `features` | `external_libs`, `local_datasource` | "Registra el feature `product` en el service locator (injectable)" |
 | `go-route-scaffold` | `app_name`, `has_auth`, `routes` | `use_sentry`, `auth_cubit`, `auth_states` | "Añade las rutas de `/orders` y `/orders/:id` al router" |
 | `flutter-test-generator` | archivo o directorio `.dart` | — | "Genera los tests para `product_cubit`" |
 
@@ -364,7 +368,7 @@ python3 skills/flutter-test-generator/generate_test.py lib/features/product/pres
 | No salió migración SQL | Se olvidó `table_name`/`columns` | Regenera con los datos de Supabase |
 | No salió migración SQL en modo `design_file` | El archivo no trae columnas Postgres | Indica las columnas cuando la skill las pregunte (o regenera con `table_name` + `columns`) |
 | Tipos inferidos incorrectos en modo `design_file` | Inferencia por convención de nombre | Revisa los `// TODO: verificar tipo` y ajusta el tipo antes de implementar |
-| No se registró en DI ni router | Se omitió `wiring` | Invoca `di-getit-scaffold` y `go-route-scaffold` manualmente |
+| No se registró en DI ni router | Se omitió `wiring` | Invoca `di-getit-scaffold` y `go-route-scaffold` manualmente, y corre `make gen` |
 | El modelo usa camelCase en vez de snake_case | No se dieron columnas Supabase | Para mapeo snake_case siempre se requiere `table_name` + `columns` |
 | Tests generados para la capa equivocada | Path ambiguo (ej: `presentation/cubit/` con state dentro) | Indica el archivo exacto |
 | El asistente no usó la skill | Detección automática falló | Pide explícitamente: "Usa la skill `clean-arch-feature`..." |

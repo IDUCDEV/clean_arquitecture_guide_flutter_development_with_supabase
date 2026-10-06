@@ -31,6 +31,8 @@ Genera un archivo individual para una feature ya existente. Útil cuando necesit
 
 ## Templates
 
+> **Anotaciones DI:** los templates que son registros (usecase, cubit, datasource impl, repository_impl) llevan su anotación (`@lazySingleton`, `@injectable`, `@LazySingleton(as:)`). El registro lo escribe `make gen` en `service_locator.config.dart` — no se toca `service_locator.dart`. Entity, Model, interface de Repository y Params **nunca** se anotan: son tipos de datos o contratos, no registros.
+
 ### Entity
 
 ```dart
@@ -91,11 +93,15 @@ class {Feature}Model extends {Feature} {
 ```dart
 import 'package:fpdart/fpdart.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/common/usecase.dart';
 import 'package:{app_name}/core/error/failures.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/repositories/{feature}_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `{Action}{Feature}Params` (abajo) NO se anota.
+@lazySingleton
 class {Action}{Feature} extends UseCase<{ReturnType}, {Action}{Feature}Params> {
   final {Feature}Repository repository;
 
@@ -123,6 +129,7 @@ class {Action}{Feature}Params extends Equatable {
 // {feature}_cubit.dart
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/common/usecase.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/usecases/get_{feature}s.dart';
@@ -130,6 +137,9 @@ import 'package:{app_name}/features/{feature}/domain/usecases/get_{feature}.dart
 
 part '{feature}_state.dart';
 
+/// `@injectable` genera un `factory`: cada pantalla que pida el cubit recibe
+/// una instancia nueva. **Nunca `@lazySingleton` en un cubit de pantalla.**
+@injectable
 class {Feature}Cubit extends Cubit<{Feature}State> {
   final Get{Feature}s _get{Feature}s;
   final Get{Feature} _get{Feature};
@@ -209,6 +219,7 @@ final class {Feature}Error extends {Feature}State {
 ### DataSource
 
 ```dart
+import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:{app_name}/core/error/exceptions.dart';
 import 'package:{app_name}/features/{feature}/data/models/{feature}_model.dart';
@@ -218,6 +229,9 @@ abstract class {Feature}RemoteDataSource {
   Future<{Feature}Model> getById(String id);
 }
 
+/// `@LazySingleton(as:)`: cuando algo pida `{Feature}RemoteDataSource`, se
+/// resuelve a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: {Feature}RemoteDataSource)
 class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
   final SupabaseClient _supabase;
 
@@ -256,12 +270,16 @@ abstract class {Feature}Repository {
 
 ```dart
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/error/failures.dart';
 import 'package:{app_name}/core/error/exceptions.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/repositories/{feature}_repository.dart';
 import 'package:{app_name}/features/{feature}/data/datasources/{feature}_remote_datasource.dart';
 
+/// `@LazySingleton(as:)`: cuando algo pida `{Feature}Repository`, se resuelve
+/// a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: {Feature}Repository)
 class {Feature}RepositoryImpl implements {Feature}Repository {
   final {Feature}RemoteDataSource remoteDataSource;
 
@@ -331,4 +349,5 @@ Reglas de naming:
 3. Generar el archivo usando el template correspondiente
 4. Para `page`: cargar el template desde `clean-arch-feature` según `pattern_type`; verificar que el cubit exista y que use los estados que el template referencia
 5. No generar bodies de métodos — usar `throw UnimplementedError()` o `// TODO: implement`
-6. Mostrar la ruta del archivo creado y recordar conectar la página en el router (`go-route-scaffold`)
+6. Si el componente lleva anotación DI (usecase, cubit, datasource, repository_impl): el registro aparece al correr `make gen` — recordar que `service_locator.config.dart` se commitea y nunca se edita a mano
+7. Mostrar la ruta del archivo creado y recordar conectar la página en el router (`go-route-scaffold`)

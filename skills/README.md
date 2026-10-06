@@ -16,7 +16,7 @@ Skills que generan **boilerplate / scaffolding** de código, dejando la implemen
 | [flutter-test-generator](./flutter-test-generator/SKILL.md) | Tests unitarios boilerplate por capa | Cuando necesitas tests para un archivo existente |
 | [clean-arch-feature](./clean-arch-feature/SKILL.md) | Feature completa (entity → page, con Supabase, páginas y wiring opcionales) | Cuando empiezas una feature nueva desde cero |
 | [clean-arch-component](./clean-arch-component/SKILL.md) | Archivo individual (entity, model, usecase, cubit, page...) | Cuando añades una pieza a una feature existente |
-| [di-getit-scaffold](./di-getit-scaffold/SKILL.md) | Módulo GetIt de inyección de dependencias | Cuando registras dependencias de una feature en el service locator (se invoca desde `clean-arch-feature` con `wiring: di`) |
+| [di-getit-scaffold](./di-getit-scaffold/SKILL.md) | Módulo GetIt de inyección de dependencias | Cuando registras/anotas dependencias de una feature (el registro lo escribe `make gen`; se invoca desde `clean-arch-feature` con `wiring: di`) |
 | [go-route-scaffold](./go-route-scaffold/SKILL.md) | Configuración de rutas GoRouter | Cuando añades rutas con/sin auth redirect y Sentry (se invoca desde `clean-arch-feature` con `wiring: router`) |
 
 ---
@@ -46,9 +46,9 @@ Las skills asumen un proyecto Flutter **ya inicializado** con la base Clean Arch
 - `lib/core/error/exceptions.dart` — `ServerException`, `CacheException`, `AuthException`
 - `lib/core/services/snackbar_helper.dart` — `SnackbarHelper.show`
 - `lib/core/widgets/app_button.dart` — `AppButton` + `AppButtonVariant`
-- `lib/core/di/service_locator.dart` — `sl = GetIt.instance` + `initDependencies()`
+- `lib/core/di/service_locator.dart` — `sl = GetIt.instance` + `configureDependencies()`. El registro lo escribe `make gen` en `service_locator.config.dart` (commiteado); `external_module.dart` declara las librerías de terceros (`@module`)
 - `lib/core/router/app_router.dart` — `AppRouter` + `GoRouter`
-- Dependencias en `pubspec.yaml`: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `get_it`, `go_router`
+- Dependencias en `pubspec.yaml`: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `get_it`, `go_router`, `injectable` (+ `injectable_generator` y `build_runner` para regenerar el `.config.dart` con `make gen`)
 
 Si el proyecto no tiene la base de `core/`, créala primero (p. ej. con un prompt de bootstrap) antes de invocar las skills.
 
@@ -76,10 +76,10 @@ Las skills están diseñadas para ser ejecutadas por el asistente AI. Solo tiene
 → El asistente ejecuta `clean-arch-feature` con parámetros Supabase y genera entidad, modelo con snake_case, datasource con `_tableName` + `watchById`, y migración SQL.
 
 **"Crea un feature product (campos id, name, price, categoryId, createdAt) con páginas list y detail, y regístralo en DI y en el router"**
-→ El asistente ejecuta `clean-arch-feature` con `pages` y `wiring: [di, router]`. Tras generar los archivos, orquesta `di-getit-scaffold` (actualiza `service_locator.dart`) y `go-route-scaffold` (añade rutas a `app_router.dart`) en el mismo turno.
+→ El asistente ejecuta `clean-arch-feature` con `pages` y `wiring: [di, router]`. Tras generar los archivos, orquesta `di-getit-scaffold` (las clases salen anotadas; `make gen` escribe el registro en `service_locator.config.dart`) y `go-route-scaffold` (añade rutas a `app_router.dart`) en el mismo turno.
 
 **"Registra el feature product en el service locator"**
-→ El asistente ejecuta `di-getit-scaffold` y añade las dependencias a `service_locator.dart`.
+→ El asistente ejecuta `di-getit-scaffold`: verifica las anotaciones de las clases del feature y te recuerda correr `make gen`.
 
 **"Añade las rutas de products y login al router"**
 → El asistente ejecuta `go-route-scaffold` con las rutas especificadas.
@@ -120,7 +120,7 @@ Las skills están diseñadas para ser ejecutadas por el asistente AI. Solo tiene
 | | `pages` | `[page_name:pattern, ...]` — pattern: `listener_builder` / `builder` / `form` |
 | | `wiring` | `[di]`, `[router]` o `[di, router]` |
 | `clean-arch-component` | `component_type`, `feature_name` (+ extra según tipo) | `entity`, `model`, `usecase`, `cubit`, `datasource`, `repository`, `repository_impl`, `page` |
-| `di-getit-scaffold` | `mode`, `app_name`, `features`, `external_libs` | `mode`: `manual` o `injectable` |
+| `di-getit-scaffold` | `mode`, `app_name`, `features`, `external_libs` | `mode`: `injectable` (default) o `manual` |
 | `go-route-scaffold` | `app_name`, `has_auth`, `routes`, `use_sentry` | Ruta: `path, page, feature, children, auth_required` |
 | `flutter-test-generator` | archivo fuente | Ruta al `.dart` (o directorio) |
 
@@ -139,6 +139,6 @@ Las skills están diseñadas para ser ejecutadas por el asistente AI. Solo tiene
 
 - **Scaffolding only**: las skills generan estructura, nunca lógica de negocio
 - `throw UnimplementedError()` en cada método — tú decides la implementación
-- Siguen las convenciones exactas del proyecto: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `mocktail` + `bloc_test`, `go_router`, `get_it`
+- Siguen las convenciones exactas del proyecto: `fpdart`, `equatable`, `flutter_bloc`, `supabase_flutter`, `mocktail` + `bloc_test`, `go_router`, `get_it` + `injectable` (registro por anotación, `.config.dart` regenerado con `make gen`)
 - Usan nombres snake_case para archivos, UpperCamelCase para clases
 - Feature-first: cada feature es independiente dentro de `lib/features/`

@@ -67,9 +67,9 @@ Los patrones disponibles son `listener_builder` (default), `builder` y `form`. V
 |---|---|---|
 | `wiring` | Qué wiring aplicar tras generar los archivos: `[di]`, `[router]` o `[di, router]` | `[di, router]` |
 
-Esta skill **no contiene** la lógica de DI ni de rutas: delega en las skills hermanas `di-getit-scaffold` (registro en `service_locator.dart`) y `go-route-scaffold` (rutas en `app_router.dart`). Solo orquesta.
+Esta skill **no contiene** la lógica de DI ni de rutas: delega en las skills hermanas `di-getit-scaffold` (las clases se anotan y `make gen` escribe el registro en `service_locator.config.dart`) y `go-route-scaffold` (rutas en `app_router.dart`). Solo orquesta.
 
-**Si se omite:** no se toca DI ni el router; el asistente recuerda en el resumen final que debe registrarse el feature y añadirse sus rutas.
+**Si se omite:** no se toca DI ni el router. Los templates dejan las clases **anotadas** igualmente; el resumen final te recuerda correr `make gen` y añadir las rutas.
 
 ## Reglas de mapeo Postgres → Dart
 
@@ -209,6 +209,8 @@ Cuando la hoja lista atributos sin tipo Dart (ej. `Comprador: id, nombre, teléf
 
 ## Templates generados
 
+> **Anotaciones DI:** los templates emiten las anotaciones del feature (`@LazySingleton(as:)` en datasource y repository impl, `@lazySingleton` en usecases, `@injectable` en el cubit de pantalla). El registro lo escribe `make gen` en `service_locator.config.dart` — el feature **nunca** toca `service_locator.dart`. Entity, Model, interface de Repository y Params **no** se anotan: son tipos de datos o contratos, no registros.
+
 ### Entity (`domain/entities/{feature}.dart`)
 
 ```dart
@@ -287,6 +289,7 @@ class {Feature}Model extends {Feature} {
 
 **Sin Supabase** (genérico):
 ```dart
+import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:{app_name}/core/error/exceptions.dart';
 import 'package:{app_name}/features/{feature}/data/models/{feature}_model.dart';
@@ -295,6 +298,9 @@ abstract class {Feature}RemoteDataSource {
 {methods_datasource_abstract}
 }
 
+/// `@LazySingleton(as:)`: cuando algo pida `{Feature}RemoteDataSource`, se
+/// resuelve a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: {Feature}RemoteDataSource)
 class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
   final SupabaseClient _supabase;
 
@@ -308,6 +314,7 @@ class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
 **Con Supabase** (igual + `_tableName` + `watchById`):
 ```dart
 import 'dart:async';
+import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:{app_name}/core/error/exceptions.dart';
 import 'package:{app_name}/features/{feature}/data/models/{feature}_model.dart';
@@ -317,6 +324,9 @@ abstract class {Feature}RemoteDataSource {
   Stream<{Feature}Model> watchById(String id);
 }
 
+/// `@LazySingleton(as:)`: cuando algo pida `{Feature}RemoteDataSource`, se
+/// resuelve a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: {Feature}RemoteDataSource)
 class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
   final SupabaseClient _supabase;
   final String _tableName = '{table_name}';
@@ -337,12 +347,16 @@ class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
 
 ```dart
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/error/failures.dart';
 import 'package:{app_name}/core/error/exceptions.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/repositories/{feature}_repository.dart';
 import 'package:{app_name}/features/{feature}/data/datasources/{feature}_remote_datasource.dart';
 
+/// `@LazySingleton(as:)`: cuando algo pida `{Feature}Repository`, se resuelve
+/// a esta concreta. `make gen` escribe el registro.
+@LazySingleton(as: {Feature}Repository)
 class {Feature}RepositoryImpl implements {Feature}Repository {
   final {Feature}RemoteDataSource remoteDataSource;
 
@@ -365,11 +379,15 @@ class {Feature}RepositoryImpl implements {Feature}Repository {
 
 ```dart
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/common/usecase.dart';
 import 'package:{app_name}/core/error/failures.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/repositories/{feature}_repository.dart';
 
+/// `@lazySingleton`: el use case no tiene estado, una instancia para la app.
+/// Converso: `{Action}{Feature}Params` (abajo) NO se anota.
+@lazySingleton
 class {Action}{Feature} extends UseCase<{ReturnType}, {Action}{Feature}Params> {
   final {Feature}Repository repository;
 
@@ -396,6 +414,7 @@ class {Action}{Feature}Params extends Equatable {
 ```dart
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:{app_name}/core/common/usecase.dart';
 import 'package:{app_name}/features/{feature}/domain/entities/{feature}.dart';
 import 'package:{app_name}/features/{feature}/domain/usecases/get_{feature}s.dart';
@@ -405,6 +424,9 @@ import 'package:{app_name}/features/{feature}/domain/usecases/delete_{feature}.d
 
 part '{feature}_state.dart';
 
+/// `@injectable` genera un `factory`: cada pantalla que pida el cubit recibe
+/// una instancia nueva. **Nunca `@lazySingleton` en un cubit de pantalla.**
+@injectable
 class {Feature}Cubit extends Cubit<{Feature}State> {
   final Get{Feature}s _get{Feature}s;
   final Get{Feature} _get{Feature};
@@ -771,7 +793,7 @@ CREATE POLICY "Users can update own {table_name}"
 5. Generar cada archivo siguiendo los templates de arriba
 6. Si se proporcionó Supabase: generar además migración SQL con CREATE TABLE + índices + RLS
 7. Si se proporcionó `pages` (o el mapeo define páginas): generar una página por entrada con el template de su patrón
-8. Si se proporcionó `wiring` con `di`: invocar la skill `di-getit-scaffold` pasándole los componentes generados (datasources, repositorios, usecases, cubit, estado) para que actualice `service_locator.dart`. No escribir la lógica de DI aquí — delegar.
+8. Si se proporcionó `wiring` con `di`: invocar la skill `di-getit-scaffold` pasándole los componentes generados (datasources, repositorios, usecases, cubit, estado). Las clases ya salen **anotadas** de los templates; la skill verifica las anotaciones y `external_module.dart`, y recuerda correr `make gen`. No escribir el registro a mano — delegar.
 9. Si se proporcionó `wiring` con `router`: invocar la skill `go-route-scaffold` pasándole las páginas generadas para que actualice `app_router.dart`. No escribir la lógica de rutas aquí — delegar.
 10. No generar bodies de métodos — usar `throw UnimplementedError()`
 11. Mostrar resumen de archivos creados al final. En modo hoja de diseño incluir además: dependencias externas pendientes (si hay) y campos con tipo inferido (`// TODO: verificar tipo`). En modo cambio OpenSpec incluir: requisitos ADDED cubiertos (REQ → usecase), requisitos MODIFIED/REMOVED pendientes brownfield, y matriz Req↔tarea si existe
