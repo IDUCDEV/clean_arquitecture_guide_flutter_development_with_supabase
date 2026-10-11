@@ -621,8 +621,8 @@ arquitectura, no un detalle de estilo.
 | Repositorio | `<algo>_repository.dart` / `<algo>_repository_impl.dart` | `raffle_repository_impl.dart` |
 | Entidad | `<algo>_entity.dart` | `ticket_entity.dart` |
 | Modelo (JSON) | `<algo>_model.dart` | `raffle_model.dart` |
-| Use case | `<verbo>_<sustantivo>.dart`, **sin** sufijo `usecase` | `get_raffles.dart` |
-| Params de use case | `<UseCase>Params`, `const`, `extends Equatable`, mismo archivo | `GetRafflesParams` |
+| Use case | `<verbo>_<sustantivo>_usecase.dart`, **con** sufijo `usecase` | `get_raffles_usecase.dart` |
+| Params de use case | `<UseCase>Params`, `const`, `extends Equatable`, mismo archivo | `GetRafflesUseCaseParams` |
 | Cubit | `<feature>_cubit.dart` | `raffle_list_cubit.dart` |
 | Estado | `<feature>_state.dart` como `part of` del cubit | `raffle_list_state.dart` |
 | Pagina | `pages/`, **nunca** `screens/` | `presentation/pages/raffles_list_page.dart` |
@@ -633,7 +633,7 @@ arquitectura, no un detalle de estilo.
 - `Cubit`, nunca `Bloc`. Cero eventos.
 - El estado es `part of` del cubit. Nunca `import`.
 - El estado base es `sealed class ... extends Equatable` con subclases
-  `final class`.
+  `class`.
 - La clase del estado es el nombre del cubit + `State`. Sin sufijo en la variante:
   `RaffleListLoaded`, no `RaffleListStateLoaded`.
 - Los estados de error llevan `String message`, no el objeto `Failure` entero.
@@ -646,11 +646,11 @@ sealed class RaffleListState extends Equatable {
   List<Object?> get props => const [];
 }
 
-final class RaffleListInitial extends RaffleListState {
+class RaffleListInitial extends RaffleListState {
   const RaffleListInitial();
 }
 
-final class RaffleListError extends RaffleListState {
+class RaffleListError extends RaffleListState {
   const RaffleListError(this.message);
   final String message;
   @override
@@ -2436,7 +2436,7 @@ import 'package:{{NOMBRE_PROYECTO}}/core/error/failures.dart';
 /// Params de un use case sin argumentos.
 ///
 /// Se usa `NoParams()` y no un valor nulo para que el constructor del use case
-/// quede uniforme: `GetRaffles(this._repo)`, `SignIn(this._repo)`.
+/// quede uniforme: `GetRafflesUseCase(this._repo)`, `SignInUseCase(this._repo)`.
 class NoParams extends Equatable {
   const NoParams();
 
@@ -4603,9 +4603,9 @@ lib/features/{{FEATURE_EJEMPLO}}/
 │   ├── repositories/
 │   │   └── {{FEATURE_EJEMPLO}}_repository.dart
 │   └── usecases/
-│       ├── get_{{FEATURE_EJEMPLO}}s.dart
-│       ├── create_{{FEATURE_EJEMPLO}}.dart
-│       └── delete_{{FEATURE_EJEMPLO}}.dart
+│       ├── get_{{FEATURE_EJEMPLO}}s_usecase.dart
+│       ├── create_{{FEATURE_EJEMPLO}}_usecase.dart
+│       └── delete_{{FEATURE_EJEMPLO}}_usecase.dart
 └── presentation/
     ├── cubit/
     │   ├── {{FEATURE_EJEMPLO}}_cubit.dart
@@ -4626,9 +4626,9 @@ test/features/{{FEATURE_EJEMPLO}}/
 │   ├── models/{{FEATURE_EJEMPLO}}_model_test.dart
 │   └── repositories/{{FEATURE_EJEMPLO}}_repository_impl_test.dart
 ├── domain/usecases/
-│   ├── get_{{FEATURE_EJEMPLO}}s_test.dart
-│   ├── create_{{FEATURE_EJEMPLO}}_test.dart
-│   └── delete_{{FEATURE_EJEMPLO}}_test.dart
+│   ├── get_{{FEATURE_EJEMPLO}}s_usecase_test.dart
+│   ├── create_{{FEATURE_EJEMPLO}}_usecase_test.dart
+│   └── delete_{{FEATURE_EJEMPLO}}_usecase_test.dart
 └── presentation/
     ├── cubit/{{FEATURE_EJEMPLO}}_cubit_test.dart
     └── pages/{{FEATURE_EJEMPLO}}_page_test.dart
@@ -4700,8 +4700,8 @@ abstract class {{DART_NOMBRE_CLASE}}Repository {
 > con `fold` ni con `doOnRight` sin castear. `Unit` es el valor de "salio bien y
 > no hay nada que devolver".
 
-**`get_{{FEATURE_EJEMPLO}}s.dart`**, **`create_{{FEATURE_EJEMPLO}}.dart`** y
-**`delete_{{FEATURE_EJEMPLO}}.dart`** -- tres use cases, mismo patron. El primero
+**`get_{{FEATURE_EJEMPLO}}s_usecase.dart`**, **`create_{{FEATURE_EJEMPLO}}_usecase.dart`** y
+**`delete_{{FEATURE_EJEMPLO}}_usecase.dart`** -- tres use cases, mismo patron. El primero
 completo, los otros dos con el mismo esqueleto:
 
 ```dart
@@ -4721,13 +4721,13 @@ import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/reposito
 /// repositorio nunca deja escapar una excepcion.
 ///
 /// `@lazySingleton`: el use case no tiene estado, asi que una instancia para
-/// toda la app alcanza. Los bloques de `Create` y `Delete` abajo no repiten
+/// toda la app alcanza. Los bloques de `CreateUseCase` y `DeleteUseCase` abajo no repiten
 /// imports: cada uno de sus archivos arranca con
 /// `import 'package:injectable/injectable.dart';`.
 @lazySingleton
-class Get{{DART_NOMBRE_PLURAL}} extends NoParamsUseCase<
+class Get{{DART_NOMBRE_PLURAL}}UseCase extends NoParamsUseCase<
     List<{{DART_NOMBRE_CLASE}}Entity>> {
-  Get{{DART_NOMBRE_PLURAL}}(this._repository);
+  Get{{DART_NOMBRE_PLURAL}}UseCase(this._repository);
 
   final {{DART_NOMBRE_CLASE}}Repository _repository;
 
@@ -4740,26 +4740,26 @@ class Get{{DART_NOMBRE_PLURAL}} extends NoParamsUseCase<
 
 ```dart
 @lazySingleton
-class Create{{DART_NOMBRE_CLASE}} extends UseCase<
-    {{DART_NOMBRE_CLASE}}Entity, Create{{DART_NOMBRE_CLASE}}Params> {
-  Create{{DART_NOMBRE_CLASE}}(this._repository);
+class Create{{DART_NOMBRE_CLASE}}UseCase extends UseCase<
+    {{DART_NOMBRE_CLASE}}Entity, Create{{DART_NOMBRE_CLASE}}UseCaseParams> {
+  Create{{DART_NOMBRE_CLASE}}UseCase(this._repository);
 
   final {{DART_NOMBRE_CLASE}}Repository _repository;
 
   @override
   Future<Either<Failure, {{DART_NOMBRE_CLASE}}Entity>> call(
-    Create{{DART_NOMBRE_CLASE}}Params params,
+    Create{{DART_NOMBRE_CLASE}}UseCaseParams params,
   ) {
     return _repository.create(title: params.title, body: params.body);
   }
 }
 
-/// Params de `Create{{DART_NOMBRE_CLASE}}`.
+/// Params de `Create{{DART_NOMBRE_CLASE}}UseCase`.
 ///
 /// `const`-able y `Equatable`, en el mismo archivo que el use case. Si sus
 /// parametros no son primitivos, `registerFallbackValue` en los tests de cubit.
-class Create{{DART_NOMBRE_CLASE}}Params extends Equatable {
-  const Create{{DART_NOMBRE_CLASE}}Params({
+class Create{{DART_NOMBRE_CLASE}}UseCaseParams extends Equatable {
+  const Create{{DART_NOMBRE_CLASE}}UseCaseParams({
     required this.title,
     required this.body,
   });
@@ -4774,8 +4774,8 @@ class Create{{DART_NOMBRE_CLASE}}Params extends Equatable {
 
 ```dart
 @lazySingleton
-class Delete{{DART_NOMBRE_CLASE}} extends UseCase<Unit, String> {
-  Delete{{DART_NOMBRE_CLASE}}(this._repository);
+class Delete{{DART_NOMBRE_CLASE}}UseCase extends UseCase<Unit, String> {
+  Delete{{DART_NOMBRE_CLASE}}UseCase(this._repository);
 
   final {{DART_NOMBRE_CLASE}}Repository _repository;
 
@@ -5139,9 +5139,9 @@ import 'package:injectable/injectable.dart';
 
 import 'package:{{NOMBRE_PROYECTO}}/core/common/usecase.dart';
 import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/entities/{{FEATURE_EJEMPLO}}_entity.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/create_{{FEATURE_EJEMPLO}}.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/delete_{{FEATURE_EJEMPLO}}.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/create_{{FEATURE_EJEMPLO}}_usecase.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/delete_{{FEATURE_EJEMPLO}}_usecase.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s_usecase.dart';
 
 part '{{FEATURE_EJEMPLO}}_state.dart';
 
@@ -5152,17 +5152,17 @@ part '{{FEATURE_EJEMPLO}}_state.dart';
 @injectable
 class {{DART_NOMBRE_CLASE}}Cubit extends Cubit<{{DART_NOMBRE_CLASE}}State> {
   {{DART_NOMBRE_CLASE}}Cubit({
-    required Get{{DART_NOMBRE_PLURAL}} get{{DART_NOMBRE_PLURAL}},
-    required Create{{DART_NOMBRE_CLASE}} create{{DART_NOMBRE_CLASE}},
-    required Delete{{DART_NOMBRE_CLASE}} delete{{DART_NOMBRE_CLASE}},
+    required Get{{DART_NOMBRE_PLURAL}}UseCase get{{DART_NOMBRE_PLURAL}},
+    required Create{{DART_NOMBRE_CLASE}}UseCase create{{DART_NOMBRE_CLASE}},
+    required Delete{{DART_NOMBRE_CLASE}}UseCase delete{{DART_NOMBRE_CLASE}},
   })  : _getAll = get{{DART_NOMBRE_PLURAL}},
         _create = create{{DART_NOMBRE_CLASE}},
         _delete = delete{{DART_NOMBRE_CLASE}},
         super(const {{DART_NOMBRE_CLASE}}Initial());
 
-  final Get{{DART_NOMBRE_PLURAL}} _getAll;
-  final Create{{DART_NOMBRE_CLASE}} _create;
-  final Delete{{DART_NOMBRE_CLASE}} _delete;
+  final Get{{DART_NOMBRE_PLURAL}}UseCase _getAll;
+  final Create{{DART_NOMBRE_CLASE}}UseCase _create;
+  final Delete{{DART_NOMBRE_CLASE}}UseCase _delete;
 
   Future<void> load() async {
     emit(const {{DART_NOMBRE_CLASE}}Loading());
@@ -5183,7 +5183,7 @@ class {{DART_NOMBRE_CLASE}}Cubit extends Cubit<{{DART_NOMBRE_CLASE}}State> {
     required String body,
   }) async {
     final result = await _create(
-      Create{{DART_NOMBRE_CLASE}}Params(title: title, body: body),
+      Create{{DART_NOMBRE_CLASE}}UseCaseParams(title: title, body: body),
     );
 
     result.fold(
@@ -5600,7 +5600,7 @@ son el registro completo.
 |---|---|---|
 | `{{DART_NOMBRE_CLASE}}LocalDataSourceImpl` | `@LazySingleton(as: ...LocalDataSource)` | lazySingleton de la abstracta |
 | `{{DART_NOMBRE_CLASE}}RepositoryImpl` | `@LazySingleton(as: ...Repository)` | lazySingleton de la abstracta |
-| `Get{{DART_NOMBRE_PLURAL}}`, `Create{{DART_NOMBRE_CLASE}}`, `Delete{{DART_NOMBRE_CLASE}}` | `@lazySingleton` | una instancia para la app |
+| `Get{{DART_NOMBRE_PLURAL}}UseCase`, `Create{{DART_NOMBRE_CLASE}}UseCase`, `Delete{{DART_NOMBRE_CLASE}}UseCase` | `@lazySingleton` | una instancia para la app |
 | `{{DART_NOMBRE_CLASE}}Cubit` | `@injectable` | `factory`, una por pantalla |
 
 Lo que **si** hay que hacer:
@@ -5667,7 +5667,7 @@ Nueve archivos. Mismo patron en todos; generá los que falten siguiendo este.
 Mocks **a nivel de archivo, fuera de `main()`**:
 
 ```dart
-// test/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s_test.dart
+// test/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s_usecase_test.dart
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -5676,7 +5676,7 @@ import 'package:{{NOMBRE_PROYECTO}}/core/common/usecase.dart';
 import 'package:{{NOMBRE_PROYECTO}}/core/error/failures.dart';
 import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/entities/{{FEATURE_EJEMPLO}}_entity.dart';
 import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/repositories/{{FEATURE_EJEMPLO}}_repository.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s_usecase.dart';
 
 class Mock{{DART_NOMBRE_CLASE}}Repository extends Mock
     implements {{DART_NOMBRE_CLASE}}Repository {}
@@ -5691,11 +5691,11 @@ final tEntity = {{DART_NOMBRE_CLASE}}Entity(
 
 void main() {
   late Mock{{DART_NOMBRE_CLASE}}Repository mockRepository;
-  late Get{{DART_NOMBRE_PLURAL}} useCase;
+  late Get{{DART_NOMBRE_PLURAL}}UseCase useCase;
 
   setUp(() {
     mockRepository = Mock{{DART_NOMBRE_CLASE}}Repository();
-    useCase = Get{{DART_NOMBRE_PLURAL}}(mockRepository);
+    useCase = Get{{DART_NOMBRE_PLURAL}}UseCase(mockRepository);
   });
 
   test('debe devolver la lista cuando la operacion es exitosa', () async {
@@ -5749,21 +5749,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:{{NOMBRE_PROYECTO}}/core/error/failures.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/create_{{FEATURE_EJEMPLO}}.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/delete_{{FEATURE_EJEMPLO}}.dart';
-import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/create_{{FEATURE_EJEMPLO}}_usecase.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/delete_{{FEATURE_EJEMPLO}}_usecase.dart';
+import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/domain/usecases/get_{{FEATURE_EJEMPLO}}s_usecase.dart';
 import 'package:{{NOMBRE_PROYECTO}}/features/{{FEATURE_EJEMPLO}}/presentation/cubit/{{FEATURE_EJEMPLO}}_cubit.dart';
 
-class MockGet{{DART_NOMBRE_PLURAL}} extends Mock extends Get{{DART_NOMBRE_PLURAL}} {}
-class MockCreate{{DART_NOMBRE_CLASE}} extends Mock
-    extends Create{{DART_NOMBRE_CLASE}} {}
-class MockDelete{{DART_NOMBRE_CLASE}} extends Mock
-    extends Delete{{DART_NOMBRE_CLASE}} {}
+class MockGet{{DART_NOMBRE_PLURAL}}UseCase extends Mock
+    implements Get{{DART_NOMBRE_PLURAL}}UseCase {}
+class MockCreate{{DART_NOMBRE_CLASE}}UseCase extends Mock
+    implements Create{{DART_NOMBRE_CLASE}}UseCase {}
+class MockDelete{{DART_NOMBRE_CLASE}}UseCase extends Mock
+    implements Delete{{DART_NOMBRE_CLASE}}UseCase {}
 
 void main() {
-  late MockGet{{DART_NOMBRE_PLURAL}} mockGetAll;
-  late MockCreate{{DART_NOMBRE_CLASE}} mockCreate;
-  late MockDelete{{DART_NOMBRE_CLASE}} mockDelete;
+  late MockGet{{DART_NOMBRE_PLURAL}}UseCase mockGetAll;
+  late MockCreate{{DART_NOMBRE_CLASE}}UseCase mockCreate;
+  late MockDelete{{DART_NOMBRE_CLASE}}UseCase mockDelete;
   late {{DART_NOMBRE_CLASE}}Cubit cubit;
 
   setUpAll(() {
@@ -5771,14 +5772,14 @@ void main() {
     // instancia de referencia para saber compararlos en `when`. Sin esto, el
     // test tira en runtime, no en compilacion.
     registerFallbackValue(
-      const Create{{DART_NOMBRE_CLASE}}Params(title: '', body: ''),
+      const Create{{DART_NOMBRE_CLASE}}UseCaseParams(title: '', body: ''),
     );
   });
 
   setUp(() {
-    mockGetAll = MockGet{{DART_NOMBRE_PLURAL}}();
-    mockCreate = MockCreate{{DART_NOMBRE_CLASE}}();
-    mockDelete = MockDelete{{DART_NOMBRE_CLASE}}();
+    mockGetAll = MockGet{{DART_NOMBRE_PLURAL}}UseCase();
+    mockCreate = MockCreate{{DART_NOMBRE_CLASE}}UseCase();
+    mockDelete = MockDelete{{DART_NOMBRE_CLASE}}UseCase();
     cubit = {{DART_NOMBRE_CLASE}}Cubit(
       get{{DART_NOMBRE_PLURAL}}: mockGetAll,
       create{{DART_NOMBRE_CLASE}}: mockCreate,
@@ -5836,7 +5837,7 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockCreate(
-          const Create{{DART_NOMBRE_CLASE}}Params(title: 'a', body: 'b'),
+          const Create{{DART_NOMBRE_CLASE}}UseCaseParams(title: 'a', body: 'b'),
         )).called(1);
       },
     );
@@ -8054,11 +8055,11 @@ lib/features/auth/
 │   ├── repositories/
 │   │   └── auth_repository.dart
 │   └── usecases/
-│       ├── sign_in.dart
-│       ├── sign_up.dart
-│       ├── sign_out.dart
-│       ├── get_current_user.dart
-│       └── reset_password.dart
+│       ├── sign_in_usecase.dart
+│       ├── sign_up_usecase.dart
+│       ├── sign_out_usecase.dart
+│       ├── get_current_user_usecase.dart
+│       └── reset_password_usecase.dart
 └── presentation/
     ├── cubit/
     │   ├── auth_cubit.dart
@@ -8078,7 +8079,7 @@ anotación. El mapa completo, para no tener que recordarlo:
 |---|---|---|
 | `data/datasources/auth_remote_data_source.dart` | `AuthRemoteDataSourceImpl` | `@LazySingleton(as: AuthRemoteDataSource)` |
 | `data/repositories/auth_repository_impl.dart` | `AuthRepositoryImpl` | `@LazySingleton(as: AuthRepository)` |
-| `domain/usecases/sign_in.dart` (+ `sign_up`, `sign_out`, `get_current_user`, `reset_password`) | el use case de cada archivo | `@lazySingleton` |
+| `domain/usecases/sign_in_usecase.dart` (+ `sign_up_usecase`, `sign_out_usecase`, `get_current_user_usecase`, `reset_password_usecase`) | el use case de cada archivo | `@lazySingleton` |
 | `presentation/cubit/auth_cubit.dart` | `AuthCubit` | `@lazySingleton` (es global, ver P10) |
 
 No se anotan los abstractos (`AuthRemoteDataSource`, `AuthRepository`), la
@@ -8301,10 +8302,10 @@ part 'auth_state.dart';
 @lazySingleton
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
-    required SignIn signIn,
-    required SignUp signUp,
-    required SignOut signOut,
-    required GetCurrentUser getCurrentUser,
+    required SignInUseCase signIn,
+    required SignUpUseCase signUp,
+    required SignOutUseCase signOut,
+    required GetCurrentUserUseCase getCurrentUser,
     required AuthStateMonitor authStateMonitor,
   })  : _signIn = signIn,
         _signUp = signUp,
@@ -8318,10 +8319,10 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  final SignIn _signIn;
-  final SignUp _signUp;
-  final SignOut _signOut;
-  final GetCurrentUser _getCurrentUser;
+  final SignInUseCase _signIn;
+  final SignUpUseCase _signUp;
+  final SignOutUseCase _signOut;
+  final GetCurrentUserUseCase _getCurrentUser;
   final AuthStateMonitor _authStateMonitor;
 
   StreamSubscription<AuthMonitorData>? _subscription;
@@ -8368,7 +8369,7 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(const AuthLoading());
     final result = await _signIn(
-      SignInParams(email: email, password: password),
+      SignInUseCaseParams(email: email, password: password),
     );
     result.fold(
       (failure) => emit(AuthError(failure.message)),
@@ -9399,9 +9400,9 @@ Checklist:
 │   │   │   │   ├── entities/{{FEATURE_EJEMPLO}}_entity.dart
 │   │   │   │   ├── repositories/{{FEATURE_EJEMPLO}}_repository.dart
 │   │   │   │   └── usecases/
-│   │   │   │       ├── create_{{FEATURE_EJEMPLO}}.dart
-│   │   │   │       ├── delete_{{FEATURE_EJEMPLO}}.dart
-│   │   │   │       └── get_{{FEATURE_EJEMPLO}}s.dart
+│   │   │   │       ├── create_{{FEATURE_EJEMPLO}}_usecase.dart
+│   │   │   │       ├── delete_{{FEATURE_EJEMPLO}}_usecase.dart
+│   │   │   │       └── get_{{FEATURE_EJEMPLO}}s_usecase.dart
 │   │   │   └── presentation/
 │   │   │       ├── cubit/
 │   │   │       │   ├── {{FEATURE_EJEMPLO}}_cubit.dart
@@ -9522,7 +9523,7 @@ version completa con el por que.
 | Repositorio | `<algo>_repository.dart` + `_impl.dart` | El `Impl` separado del contrato, para poder mockear |
 | Entidad | `<algo>_entity.dart` | Marca visual de "esto es dominio puro" |
 | Modelo | `<algo>_model.dart`, `fromJson`/`toJson` explicitos | Sin `json_serializable`: el `.g.dart` esconde el mapeo |
-| Use case | `<verbo>_<sustantivo>.dart`, sin sufijo `usecase` | `sign_in.dart` y no `sign_in_usecase.dart` |
+| Use case | `<verbo>_<sustantivo>_usecase.dart`, con sufijo `usecase` | `sign_in_usecase.dart` y no `sign_in.dart` |
 | Params | `<UseCase>Params`, `const`, `Equatable`, mismo archivo | Vive junto al use case que lo consume |
 | Cubit | `Cubit`, nunca `Bloc` | Menos ceremonia para el 90% de las pantallas |
 | Estado | `part of` del cubit, `sealed` + `final class` | El cubit tiene el estado sin importar el archivo |
@@ -9808,7 +9809,7 @@ proyecto igual. Pero cada una cambia el codigo que genera.
 
 | Version | Que cambio |
 |---|---|
-| v2 (este) | Nucleo sin auth + packs. DI con `injectable` (registro por anotación, `@module` para lo externo, `service_locator.config.dart` commiteado). `*_data_source.dart`. `core/routing/`. `part of` en estados. `core/session/current_user.dart`. Slice descartable + `make drop-feature`. `ErrorHandler`. Tests pgTAP de seguridad como default. Migraciones con ordinal. |
+| v2 (este) | Nucleo sin auth + packs. DI con `injectable` (registro por anotación, `@module` para lo externo, `service_locator.config.dart` commiteado). `*_data_source.dart`. `core/routing/`. `part of` en estados. `core/session/current_user.dart`. Slice descartable + `make drop-feature`. `ErrorHandler`. Tests pgTAP de seguridad como default. Migraciones con ordinal. Use cases con sufijo `usecase` en archivo y clase (`get_raffles_usecase.dart`, `GetRafflesUseCase`). |
 | v1 | `PROMPT-SCAFFOLD.md`: Flutter unicamente, auth asumido, `*_datasource.dart`, `core/router/`. 17 defectos. |
 
 **Cambios grandes respecto de la v1**, si venis de ahi:
