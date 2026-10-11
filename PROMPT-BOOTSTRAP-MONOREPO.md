@@ -154,10 +154,15 @@ ejecuta despues de que PARTE A verifico. No dependen entre si.
 ├── docs/
 │   ├── adr/
 │   └── openspec/
+├── design/
 ├── tools/
 ├── .github/
 │   ├── workflows/
 │   └── ISSUE_TEMPLATE/
+├── .vscode/
+│   ├── extensions.json
+│   ├── launch.json
+│   └── settings.json.example
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── SECURITY.md
@@ -272,6 +277,7 @@ Thumbs.db
 .vscode/*
 !.vscode/settings.json.example
 !.vscode/extensions.json
+!.vscode/launch.json
 
 # ---- Test artifacts ----
 test-results/
@@ -1207,7 +1213,8 @@ body:
       description: Tablas nuevas, RPCs, cambios de RLS, migraciones
 ```
 
-`.vscode/extensions.json` y `.vscode/settings.json.example`:
+`.vscode/extensions.json`, `.vscode/launch.json` (se commitea) y
+`.vscode/settings.json.example`:
 
 ```json
 {
@@ -1222,10 +1229,58 @@ body:
 ```
 
 ```jsonc
+// Configuraciones de depuracion. Este archivo se commitea: todos los paths son
+// relativos, asi que el mismo F5 funciona en cualquier maquina.
+//
+// El `cwd` es lo que permite un unico `.vscode/` en la raiz del monorepo:
+// Dart-Code resuelve `lib/main.dart` contra apps/mobile, y `npm run dev` contra
+// apps/web. La contrapartida de este modo (un solo workspace, sin un
+// *.code-workspace multi-root) es que Dart-Code trabaja contra la raiz; el
+// beneficio es que el repo se abre con un F5 y todos comparten la config.
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/mobile",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "development"]
+    },
+    {
+      "name": "Flutter: production",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/mobile",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "production"]
+    },
+    {
+      "name": "Flutter: attach",
+      "type": "dart",
+      "request": "attach"
+    },
+    {
+      "name": "Next.js: server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "apps/web",
+      "command": "npm run dev"
+    }
+  ]
+}
+```
+
+```jsonc
 // Renombrar a settings.json para que se aplique de verdad.
 {
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+  // Coincide con `.editorconfig`: max_line_length = 90 para Dart.
+  "dart.lineLength": 90,
+  // Dart-Code detecta FVM solo si existe `.fvm/`. Si no lo hace, descomentar:
+  // "dart.flutterSdkPath": ".fvm/flutter_sdk",
   "[dart]": {
     "editor.defaultFormatter": "Dart-Code.dart-code",
     "editor.rulers": [90]
@@ -1236,6 +1291,12 @@ body:
 }
 ```
 
+> **Sobre `launch.json` commiteado y no como `.example`:** a diferencia de
+> `settings.json`, los debug configs usan rutas relativas y son portables. No hay
+> nada especifico de la maquina que ignorar, asi que el equipo comparte el mismo
+> F5. `settings.json` sigue siendo `.example` porque ahi si hay preferencias
+> personales.
+
 > **VERIFICAR FASE 1**
 
 ```bash
@@ -1243,6 +1304,11 @@ make help        # lista los targets
 make doctor      # reporta las herramientas faltantes
 make git-verify  # ningun .env trackeado (si falla: .gitignore esta mal)
 ```
+
+El `launch.json` no se puede verificar por linea de comandos: la unica prueba es
+abrir el repo en VS Code con la extension Dart-Code y dar F5 sobre
+`Flutter: development`. Si el flavor todavia no existe (eso pasa en la FASE 5.2),
+`Flutter: attach` y `Next.js: server-side` sirven para el resto del bootstrap.
 
 ---
 
@@ -9416,6 +9482,10 @@ Checklist:
 ├── .github/
 │   ├── ISSUE_TEMPLATE/{bug_report,feature_request}.yml
 │   └── workflows/{mobile,db,web,security}.yml
+├── .vscode/
+│   ├── extensions.json
+│   ├── launch.json
+│   └── settings.json.example
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── CONTRIBUTING.md
