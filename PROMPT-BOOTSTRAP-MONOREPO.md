@@ -163,6 +163,8 @@ ejecuta despues de que PARTE A verifico. No dependen entre si.
 │   ├── extensions.json
 │   ├── launch.json
 │   └── settings.json.example
+├── .husky/
+│   └── commit-msg
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── SECURITY.md
@@ -174,6 +176,8 @@ ejecuta despues de que PARTE A verifico. No dependen entre si.
 ├── .gitattributes
 ├── .env.example
 ├── .nvmrc
+├── package.json
+├── package-lock.json
 ├── commitlint.config.js
 ├── dependabot.yml
 └── .github/dependabot.yml
@@ -421,7 +425,8 @@ db-status: ## Estado del stack local
 # ------------------------------------------------------------------
 
 .PHONY: install
-install: ## Instala dependencias de las tres capas
+install: ## Instala dependencias de las tres capas (el npm de raiz cuelga los hooks de commit)
+	@npm install
 	@$(MAKE) --no-print-directory -C $(MOBILER) install
 	@$(MAKE) --no-print-directory -C $(WEB) install
 
@@ -509,6 +514,22 @@ git-history: ## Busca credenciales reales commiteadas en TODO el historial
 	else \
 		echo "  ok    sin sb_secret_ en el historial"; \
 	fi
+
+# ------------------------------------------------------------------
+#  Conventional commits
+# ------------------------------------------------------------------
+
+.PHONY: commit
+commit: ## Abre el wizard de conventional commits (commitizen)
+	@npm run commit
+
+.PHONY: commitlint
+commitlint: ## Valida el ultimo mensaje de commit (el hook commit-msg tambien)
+	@npm run commitlint
+
+.PHONY: prepare-husky
+prepare-husky: ## Reinstala los hooks de git (husky + commit-msg)
+	@npm run prepare
 ```
 
 ### 1.6 `README.md`
@@ -561,6 +582,8 @@ make help        # lista todos los targets
 make check       # analyze + test + lint de las tres capas
 make db-diff     # genera una migration desde los cambios de schema
 make git-verify  # verifica que no haya .env trackeados
+make commit      # abre el wizard de conventional commits (commitizen)
+make commitlint  # valida el ultimo mensaje de commit
 ```
 
 ## Seguridad
@@ -748,7 +771,9 @@ test('debe devolver la lista cuando la operacion es exitosa', () async {
 
 ## Git
 
-- Commits conventional commits, validados por commitlint. No `--no-verify`.
+- Commits conventional commits: `make commit` abre el wizard (commitizen). El
+  hook `commit-msg` valida cada mensaje con commitlint; `make commitlint` valida
+  el ultimo commit. No `--no-verify`.
 - Ramas: `main` (produccion), `develop` (integracion), `feature/*`, `fix/*`, `chore/*`.
 - Los `.env` nunca se commitean. `make git-verify` antes de cada push.
 - Toda migration nueva requiere su test pgTAP en el mismo PR.
@@ -1057,6 +1082,48 @@ module.exports = {
     'header-max-length': [2, 'always', 100],
   },
 };
+
+`package.json` (raiz):
+
+```json
+{
+  "name": "{{NOMBRE_PROYECTO}}-monorepo",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "commit": "git-cz",
+    "commitlint": "commitlint --edit"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@commitlint/cz-commitlint": "^19.0.0",
+    "commitizen": "^4.3.0",
+    "husky": "^9.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  }
+}
+```
+
+> `prepare` corre solo en el `npm install` local (no en `npm ci`): husky cuelga
+> el hook `commit-msg` y apunta `core.hooksPath` a `.husky/_` (generado, **no**
+> se commitea). `make install` ya lo dispara. El wizard usa el adapter
+> `@commitlint/cz-commitlint`, asi los tipos del prompt son los del
+> `commitlint.config.js`, no una lista distinta a mano.
+
+`.husky/commit-msg`:
+
+```
+npx --no -- commitlint --edit "$1"
+```
+
+> `--no` impide que `npx` pregunte para instalar commitlint de forma global si
+> faltan las dependencias locales; falla limpio, que es lo correcto cuando no
+> corriste `make install`.
 ```
 
 `.nvmrc`:
