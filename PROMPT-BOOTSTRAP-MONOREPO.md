@@ -437,6 +437,10 @@ mobile-analyze: ## Analiza Dart
 mobile-test: ## Corre los tests de Dart
 	@$(MAKE) --no-print-directory -C $(MOBILER) test
 
+.PHONY: mobile-check
+mobile-check: ## analyze + test de Dart (analyze primero)
+	@$(MAKE) --no-print-directory -C $(MOBILER) check
+
 # ------------------------------------------------------------------
 #  Web
 # ------------------------------------------------------------------
