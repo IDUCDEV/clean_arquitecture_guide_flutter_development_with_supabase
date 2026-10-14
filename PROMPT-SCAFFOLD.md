@@ -3,9 +3,9 @@
 > ⚠️ **Prompt legacy — Flutter + Supabase, sin Next.js.**
 >
 > Para arrancar el stack completo del repo (monorepo `apps/mobile` + `apps/web` +
-> `supabase/` en la raíz) usá
-> [`PROMPT-BOOTSTRAP-MONOREPO.md`](./PROMPT-BOOTSTRAP-MONOREPO.md), que además
-> corrige los errores de este archivo (ver Apéndice C del nuevo).
+> `supabase/` en la raíz) usá el prompt por fases en
+> [`PROMPT-POR-FASES/`](./PROMPT-POR-FASES/), que además
+> corrige los errores de este archivo (ver Apéndice C: [`10-apendices.md`](./PROMPT-POR-FASES/10-apendices.md)).
 >
 > Este prompt se mantiene como **referencia de estructura Flutter**: la taxonomía
 > de carpetas, los tipos de `Failure`, el shape de `UseCase` y los widgets

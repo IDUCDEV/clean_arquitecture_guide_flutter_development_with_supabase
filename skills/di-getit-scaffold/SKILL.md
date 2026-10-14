@@ -9,7 +9,7 @@ Mantiene el módulo de inyección de dependencias de GetIt. Ordena por capa: ext
 
 > **Orquestación:** esta skill suele invocarse desde `clean-arch-feature` cuando el usuario pide `wiring: [di]`. En ese flujo, los componentes generados (datasources, repositorios, usecases, cubit, estado) llegan **ya anotados** por los templates de `clean-arch-feature` / `clean-arch-component`; la skill solo los verifica y añade lo externo que falte. Puede usarse también de forma independiente sobre un feature ya existente.
 
-> **¿`injectable` o `manual`?** El modo por defecto es `injectable` — el del prompt `PROMPT-BOOTSTRAP-MONOREPO.md` (v2): cada clase se anota donde vive y `make gen` escribe el registro. El modo `manual` es **legacy / brownfield**: solo para proyectos que ya tienen la cascada manual en `service_locator.dart` (v1) y aún no migraron, como el monorepo real. Para proyectos nuevos usa `injectable`.
+> **¿`injectable` o `manual`?** El modo por defecto es `injectable` — el del prompt por fases `PROMPT-POR-FASES/` (v2): cada clase se anota donde vive y `make gen` escribe el registro. El modo `manual` es **legacy / brownfield**: solo para proyectos que ya tienen la cascada manual en `service_locator.dart` (v1) y aún no migraron, como el monorepo real. Para proyectos nuevos usa `injectable`.
 
 ## Input requerido
 

@@ -191,7 +191,7 @@ Siempre requiere `feature_name` y `component_type`.
 
 ## 4. `di-getit-scaffold` — inyección de dependencias
 
-Mantiene el módulo GetIt. **Modo por defecto: `injectable`** (el de `PROMPT-BOOTSTRAP-MONOREPO.md` v2): cada clase se anota donde vive y `make gen` escribe el registro. Puede invocarse sola o ser orquestada desde `clean-arch-feature` (`wiring: [di]`).
+Mantiene el módulo GetIt. **Modo por defecto: `injectable`** (el del prompt por fases `PROMPT-POR-FASES/` v2): cada clase se anota donde vive y `make gen` escribe el registro. Puede invocarse sola o ser orquestada desde `clean-arch-feature` (`wiring: [di]`).
 
 ### 4.1 Inputs
 
